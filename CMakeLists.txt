@@ -38,26 +38,26 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 
-
-
 include(${PROJECT_SOURCE_DIR}/cmake/InitDownloadSubmodule.cmake)
 InitDownloadSubmodule()
 
-
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/networkit/CMakeLists.txt" )
    message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
- endif()
+endif()
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/abseil-cpp/CMakeLists.txt" )
+   message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
 
 # add extern subdirectory
 add_subdirectory(extern)
 
 # The compiled library code is here
+
 add_subdirectory(src)
+
 # The executable code is here
 add_subdirectory(app)
-  
-
-
 
 # Testing only available if this is the main app
 # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well

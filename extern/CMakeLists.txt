@@ -8,6 +8,7 @@ add_subdirectory(boost)
 # add the random generator
 add_subdirectory(sfmt)
 
-
+# add abseil library
+add_subdirectory(abseil-cpp)
 
 

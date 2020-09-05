@@ -4,17 +4,15 @@ project(sfmt_project)
 include("${CMAKE_SOURCE_DIR}/cmake/FindSSE.cmake")
 FindSSE()
 
+add_library(sfmt
+  "${CMAKE_CURRENT_SOURCE_DIR}/SFMT.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/SFMT.h")
 
-add_library(sfmt SHARED)
-
-target_sources(sfmt
-  PRIVATE
-    SFMT.c
+target_include_directories(sfmt
   PUBLIC
-    SFMT.h
+    ${CMAKE_CURRENT_SOURCE_DIR}     
 )
 
-target_include_directories(sfmt INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(SSE2_FOUND)
   if(MSVC)
@@ -23,4 +21,5 @@ if(SSE2_FOUND)
     target_compile_options(sfmt PRIVATE -msse2)
   endif()
 endif()
+
 

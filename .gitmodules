@@ -1,3 +1,6 @@
 [submodule "extern/networkit"]
 	path = extern/networkit
 	url = https://github.com/networkit/networkit.git
+[submodule "extern/abseil-cpp"]
+	path = extern/abseil-cpp
+	url = https://github.com/abseil/abseil-cpp.git
