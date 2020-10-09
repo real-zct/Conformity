@@ -43,9 +43,20 @@ namespace Aditum
 
 	template<typename F>
 	std::enable_if_t<Utility::function_traits<F>::arity==3>
-	operator()(Graph &g, node root, F f)
+	operator()(Graph &g, node root, F &&f)
 	{
-	    static_cast<T*>(this) -> operator()(g, root, std::forward<F>(f));
+	    static_cast<T*>(this) -> operator()(g, root, std::forward<F>(f), [](node){return false;});
+	}
+
+	template<typename F, typename C>
+	std::enable_if_t<
+	    Utility::function_traits<C>::arity==1 &&
+	    std::is_same<typename Utility::function_traits<C>::return_type, bool>::value && 
+	    Utility::function_traits<F>::arity==3
+	    >
+	operator()(Graph &g, node root, F &&f, C &&c)
+	{
+	    static_cast<T*>(this) -> operator()(g, root, std::forward<F>(f), std::forward<C>(c));
 	}
     };
     
@@ -53,9 +64,14 @@ namespace Aditum
     class ICRandomRRSetGenerator : public RandomRRSetGenerator<ICRandomRRSetGenerator>
     {
     public:
-	template<typename F>
-	std::enable_if_t<Utility::function_traits<F>::arity==3>
-	operator()(Graph &g, node root, F f)
+
+	template<typename F, typename C>
+	std::enable_if_t<
+	    Utility::function_traits<C>::arity==1 &&
+	    std::is_same<typename Utility::function_traits<C>::return_type, bool>::value && 
+	    Utility::function_traits<F>::arity==3
+	    >
+	operator()(Graph &g, node root, F &&f, C &&stopCondition)
 	{
 	    std::stack<node> s;
 	    absl::flat_hash_set<node> visited = {root};
@@ -63,6 +79,10 @@ namespace Aditum
 	    do {
 		const auto v = s.top();
 		s.pop();
+		//check if the stopCondition is matched
+		if(stopCondition(v))
+		    break;
+		    
 		g.forInEdgesOf(v, [&](node,  node src, edgeweight weight){
 		    //if src has been already processed then return
 		    if(visited.contains(src))
@@ -80,7 +100,6 @@ namespace Aditum
 	    
 	    } while(!s.empty());
 	}
-
     };
 
 
@@ -88,9 +107,14 @@ namespace Aditum
     class LTRandomRRSetGenerator : public RandomRRSetGenerator<LTRandomRRSetGenerator>
     {
     public:
-	template<typename F>
-	std::enable_if_t<Utility::function_traits<F>::arity==3>
-	operator()(Graph &g, node root, F f)
+
+	template<typename F, typename C>
+	std::enable_if_t<
+	    Utility::function_traits<C>::arity==1 &&
+	    std::is_same<typename Utility::function_traits<C>::return_type, bool>::value && 
+	    Utility::function_traits<F>::arity==3
+	    >
+	operator()(Graph &g, node root, F f, C stopCondition)
 	{
 	    std::stack<node> s;
 	    absl::flat_hash_set<node> visited = {root};
@@ -98,6 +122,11 @@ namespace Aditum
 	    do {
 		const auto v = s.top();
 		s.pop();
+
+		//check if the stop condition is matched
+		if(stopCondition(v))
+		    break;
+		
 		double random = sfmt_genrand_real1(&gen);
 		g.forInEdgesOf(v, [&](node, node src, edgeweight weight){
 		    //if random < 0 v has already been activated by one of

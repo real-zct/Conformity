@@ -36,20 +36,32 @@ TEST_CASE("ABSEIL", "[.]") {
     s.emplace(3);
     s.emplace(5);
     REQUIRE(s.size()==2);
-
     for(auto x : s)
 	INFO(x);
 }
 
-TEST_CASE("rr set", "[.]"){
+TEST_CASE("rr set", "[rr set generaton]"){
     NetworKit::EdgeListReader reader(' ', 0, "#", true, true);
     NetworKit::Graph g =  reader.read("/home/antonio/Garbage/graph.txt");
     REQUIRE (g.numberOfNodes() == 8);
     Aditum::LTRandomRRSetGenerator gen;
     absl::flat_hash_set<uint> nodes;
-    gen(g, 0, [&](NetworKit::node src, NetworKit::node trg, NetworKit::edgeweight ew){
-	nodes.emplace(src);
-    });
+    static_cast<Aditum::RandomRRSetGenerator<decltype(gen)>>(gen)
+	.genn(g,
+	      0,
+	     [&](NetworKit::node src, NetworKit::node trg, NetworKit::edgeweight ew){
+		 nodes.emplace(src);
+	     });
+	     // [&](NetworKit::node v){return false;});
+	
+
+    // ((Aditum::RandomRRSetGenerator<decltype(gen)>) gen).genn(g,
+    // 	     0,
+    // 	     [&](NetworKit::node src, NetworKit::node trg, NetworKit::edgeweight ew){
+    // 		 nodes.emplace(src);
+    // 	     });
+    // 	     // [&](NetworKit::node v){return false;});
+
     for(auto x : nodes)
 	INFO(x);
 }
@@ -80,7 +92,7 @@ TEST_CASE("distribution single", "[.]")
 	std::cout << it.first << " " << it.second << "\n";
 }
 
-TEST_CASE("distribution vector", "[distribution]")
+TEST_CASE("distribution vector", "[.]")
 {
     std::vector<double> p = {1,1,1,1,1};
     Aditum::Distribution dist(p, 0);

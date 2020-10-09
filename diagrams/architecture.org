@@ -6,19 +6,24 @@ class AditumAlgo {
 #AditumGraph g
 #Distribution nodeDist
 #double alpha
+#double epsilon
+#vector<double> setRootScore
+#vector<set<node>> rrsets
+#vector<set<int>> nodesetindexes
 --
-#estimateAtivationProbability()
 #generateRRsets(int samples, F callback)
 #buildSeedSet(bool withDiversity)
-+set<node>run(int k)
-
+template<RRSETGenerator>
++set<node>run(int k, RRSetGenerator)
 __Abstract Methods__
 #{abstract} computeDiversity(nodeSet)
 #{abstract} computeDiversity(v, nodeSet) 
 #{abstract} generateRRSet()
-__Utility Methods__
-Function for sampling accordingly to
-the capital score
+__Private Methods__
+- estimateInfprob() 
+- kptEstimation()
+- refineKpt()
+
 }
 
 class Distribution {
@@ -122,4 +127,49 @@ CapitalScoreFileReader - FileReader :> uses
 #+END_SRC
 #+results: 
 [[file:classDiagram.png]]
+* Sequence Diagram 
+
+
+#+BEGIN_SRC plantuml :file sequenceDiagram.png
+/'
+Callbacks
+F1: Compute the set width. RRSet are represented with a set structure. Score of the root is required.
+F2: RRSets are represented as trees
+'/
+run --> estimateInfProb: Call
+estimateInfProb --> KptEst: Call
+KptEst --> generateRandomRRset: Call 
+note left
+F1
+end note
+KptEst <-- estimateInfProb: First estimate
+estimateInfProb --> refineKpt: Call 
+note left
+Builds on top of the previous RRSEts
+end note
+refineKpt --> BuildSeedSet: Call
+note left
+The call is not diveristy aware
+end note
+BuildSeedSet --> refineKpt: seed set
+refineKpt --> generateRandomRRset: Call
+note left
+F1 
+end note
+estimateInfProb <-- refineKpt: returns the final kpt estimation
+run <-- estimateInfProb: returns the final kpt estimation
+run --> generateRandomRRset: generateTheta random RR sets
+note left 
+F1 if not topology-driven
+F2 if topology-driven
+end note
+run <-- generateRandomRRset: returns RRSets
+run --> BuildSeedSet
+
+
+#+END_SRC
+
+#+RESULTS:
+[[file:sequenceDiagram.png]]
+
 

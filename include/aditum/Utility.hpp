@@ -2,7 +2,7 @@
  *   \file Utility.hpp
  *   \brief File containing several utility functions
  *
- *  File containing a number of utility functions
+ *  File containing a number of utility functions and objects
  *
  */
 #ifndef UTILITY_H
@@ -12,10 +12,11 @@
 
 namespace Aditum
 {
-
+    
     namespace Utility
     {
 
+	
 	/**
 	 *  \brief Return the current timestamp
 	 *
@@ -56,6 +57,39 @@ namespace Aditum
 	    T* alignedPointer = (T*) memalign(16, atLeastSizeBytes);
 	    return alignedPointer;
 	}
+
+
+	/**
+	 * @brief      Class for lazy forward greedy selection
+	 *
+	 * @details    This class keep the inforamtion required to build the seed set 
+	 *
+	 */
+	struct ScoreObject
+	{
+	    /*!< node the score refers to */
+	    unsigned int node;
+
+	    /*!< the iteration the score refers to */
+	    unsigned int iteration;
+
+	    /*!< the capital score of the node */
+	    double capitalScore;
+
+	    /*!< the diversity score of the node */
+	    double diversityScore;
+
+	    ScoreObject(ScoreObject&&) noexcept = default;
+	    ScoreObject& operator=(ScoreObject&&) = default; // force a move assignment anyway 
+
+    	    bool operator<(const ScoreObject &other) const
+	    {
+		if(iteration == other.iteration)
+		    return (other.capitalScore + other.diversityScore) < (capitalScore+diversityScore);
+		return other.iteration < iteration;
+	    }
+	    
+	};
     
     }
 }
