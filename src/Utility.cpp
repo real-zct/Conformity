@@ -1,6 +1,6 @@
 #include <aditum/Utility.hpp>
 #include <chrono>
-
+#include <iostream>
 namespace  Aditum
 {
 
@@ -22,26 +22,32 @@ namespace  Aditum
 	}
 
 
-	template<typename T>
-	T* alignedMemory(unsigned int atLeastSize, int *arraySize)
-	{
-	    //find the closest multiple of 16
-	    auto closestMultiple16 = [](int n) -> int {
-		if(n%16==0)
-		    return n;
+	// T* alignedMemory(unsigned int atLeastSize, int *arraySize)
+	// {
+	//     std::cout << "=======aligned=====" << "\n";
+	//     //find the closest multiple of 16
+	//     std::cout << atLeastSize << "\n";
 
-		n = n + 16/2;
-		n = n - (n%16) + 16;
-		return n;
-	    };
-	    auto typeSize = sizeof(T);
-	    //compute the number of bytes required to store atLeastSize instance of T
-	    auto alignedSize = closestMultiple16(atLeastSize);
-	    auto atLeastSizeBytes = typeSize * alignedSize;
-	    *arraySize = atLeastSizeBytes/typeSize;
-	    T* alignedPointer = (T*) memalign(16, atLeastSizeBytes);
-	    return alignedPointer;
-	}
+	//     auto closestMultiple16 = [](int n) -> int {
+	// 	int mod = n%16;
+	// 	if(mod)
+	// 	    return n;
+	// 	return n + 16-mod;
+	// 	// n = n + 16/2;
+	// 	// n = n - (n%16) + 16;
+	// 	// return n;
+	//     };
+	    
+	//     auto typeSize = sizeof(T);
+	//     //compute the number of bytes required to store atLeastSize instance of T
+	//     auto alignedSize = closestMultiple16(atLeastSize);
+	//     std::cout << alignedSize << "\n";
+
+	//     auto atLeastSizeBytes = typeSize * alignedSize;
+	//     *arraySize = atLeastSizeBytes/typeSize;
+	//     T* alignedPointer = (T*) memalign(16, atLeastSizeBytes);
+	//     return alignedPointer;
+	// }
 
     }
 

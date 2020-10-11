@@ -33,27 +33,27 @@ namespace Aditum
 	 *  is the closest multiple of 16 greater or equal than
 	 *  the size provided as input
 	 *
-	 *  \param atLeastsize is the (least) number of element in the final array
+	 *  \param atLeastsize is the (least) number of element in the final arrayg
 	 *  \param arraySize is the actual size of the allocated array
 	 *  \return return type
 	 */
 	template<typename T>
-	T* alignedMemory(unsigned int atLeastSize, int &&arraySize = 0)
+	T* alignedMemory(unsigned int atLeastSize, int *alignedSize)
 	{
 	    //find the closest multiple of 16
-	    auto closestMultiple16 = [](int n) -> int {
-		if(n%16==0)
+	     auto closestMultiple16 = [](unsigned int n) -> int {
+		int mod = n%16;
+		if(mod == 0)
 		    return n;
-
-		n = n + 16/2;
-		n = n - (n%16) + 16;
-		return n;
+		return n + 16-mod;
 	    };
+
 	    auto typeSize = sizeof(T);
 	    //compute the number of bytes required to store atLeastSize instance of T
-	    auto alignedSize = closestMultiple16(atLeastSize);
-	    auto atLeastSizeBytes = typeSize * alignedSize;
-	    arraySize = atLeastSizeBytes/typeSize;
+	    
+	    *alignedSize = closestMultiple16(atLeastSize);
+
+	    auto atLeastSizeBytes = typeSize * *alignedSize;
 	    T* alignedPointer = (T*) memalign(16, atLeastSizeBytes);
 	    return alignedPointer;
 	}
@@ -79,14 +79,15 @@ namespace Aditum
 	    /*!< the diversity score of the node */
 	    double diversityScore;
 
+	    ScoreObject() = default;
 	    ScoreObject(ScoreObject&&) noexcept = default;
 	    ScoreObject& operator=(ScoreObject&&) = default; // force a move assignment anyway 
 
     	    bool operator<(const ScoreObject &other) const
 	    {
 		if(iteration == other.iteration)
-		    return (other.capitalScore + other.diversityScore) < (capitalScore+diversityScore);
-		return other.iteration < iteration;
+		    return (capitalScore + diversityScore) < (other.capitalScore+other.diversityScore);
+		return iteration < other.iteration;
 	    }
 	    
 	};

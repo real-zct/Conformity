@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/catch.hpp> 
 #include <networkit/graph/Graph.hpp>
 #include <stdlib.h> 
 #include <networkit/io/EdgeListReader.hpp>
@@ -9,6 +9,7 @@
 #include <absl/container/flat_hash_set.h>
 #include <aditum/RandomRRSetGenerator.hpp>
 #include <aditum/AditumGraph.hpp>
+#include <aditum/AditumAlgo.hpp>
 #include <aditum/Distribution.hpp>
 #include <memory>
 #include <algorithm>
@@ -40,28 +41,27 @@ TEST_CASE("ABSEIL", "[.]") {
 	INFO(x);
 }
 
-TEST_CASE("rr set", "[rr set generaton]"){
+TEST_CASE("rr set", "rr set"){
     NetworKit::EdgeListReader reader(' ', 0, "#", true, true);
     NetworKit::Graph g =  reader.read("/home/antonio/Garbage/graph.txt");
     REQUIRE (g.numberOfNodes() == 8);
     Aditum::LTRandomRRSetGenerator gen;
     absl::flat_hash_set<uint> nodes;
+    nodes.emplace(1); int cov = 0;
     static_cast<Aditum::RandomRRSetGenerator<decltype(gen)>>(gen)
-	.genn(g,
+	.operator()(g,
 	      0,
 	     [&](NetworKit::node src, NetworKit::node trg, NetworKit::edgeweight ew){
 		 nodes.emplace(src);
+	     },
+	     [&](NetworKit::node v)->bool{
+		 if(nodes.count(v)>0){
+		     cov++;
+		     return true;
+		 }
+		 return false;
 	     });
-	     // [&](NetworKit::node v){return false;});
-	
-
-    // ((Aditum::RandomRRSetGenerator<decltype(gen)>) gen).genn(g,
-    // 	     0,
-    // 	     [&](NetworKit::node src, NetworKit::node trg, NetworKit::edgeweight ew){
-    // 		 nodes.emplace(src);
-    // 	     });
-    // 	     // [&](NetworKit::node v){return false;});
-
+    INFO(cov);
     for(auto x : nodes)
 	INFO(x);
 }
@@ -92,17 +92,23 @@ TEST_CASE("distribution single", "[.]")
 	std::cout << it.first << " " << it.second << "\n";
 }
 
-TEST_CASE("distribution vector", "[.]")
-{
-    std::vector<double> p = {1,1,1,1,1};
-    Aditum::Distribution dist(p, 0);
-    std::vector<int> v = dist.sample(10000);
-    std::unordered_map<int, int> map;
-    for(int i=0 ; i<v.size() ; i++){
-	map[v[i]]++;
+
+TEST_CASE("score object", "[.]"){
+    using SO = Aditum::Utility::ScoreObject;
+    std::vector<SO> q;
+    q.push_back(SO{0,0,1,0});
+    q.push_back(SO{1,0,2,0});
+    q.push_back(SO{2,0,3,0});
+
+    std::make_heap(q.begin(),q.end());
+    
+    while(!q.empty()){
+	std::pop_heap(q.begin(), q.end());
+	SO &item = q.back();
+	std::cout << item.node << " "<< item.capitalScore << "\n";
+	q.pop_back();
     }
-    for(auto it : map)
-	std::cout << it.first << " " << it.second << "\n";
+    std::cout << (SO{0,0,1,0} < SO{0,0,2,0}) << "\n";
 }
 
 

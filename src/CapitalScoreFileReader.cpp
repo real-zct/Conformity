@@ -15,7 +15,7 @@ std::vector<double> CapitalScoreFileReader::read(std::string path){
 	std::regex_search(line, cm, lineRegex);
 	auto node = atoi(cm[1].str().c_str());
 	auto capitalScore = atof(cm[2].str().c_str());
-	std::cout << node << ":" << capitalScore << "\n";
+
 
 	scores.emplace(node, capitalScore);
 

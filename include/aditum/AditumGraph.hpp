@@ -40,8 +40,9 @@ private:
        An AditumGraph can only be created via the
        builder class 
      */
+private:
     AditumGraph() = default;
-
+    
 public:
 
     //builder of the glass

@@ -2,3 +2,4 @@ build/
 .gitignore
 #*
 compile_commands:w.json
+.clangd/

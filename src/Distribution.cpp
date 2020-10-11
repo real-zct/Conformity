@@ -3,7 +3,9 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-namespace Aditum {
+
+namespace Aditum
+{
 
 
     Distribution::Distribution(std::vector<double> discreteP, unsigned int seed):
@@ -21,6 +23,7 @@ namespace Aditum {
 	    cumulativeProbs[i] = cumProb;
 	}
 	maxValue = cumProb;
+	
     }
     
     Distribution::Distribution(std::vector<double> discreteProbs):
@@ -31,14 +34,13 @@ namespace Aditum {
     {
         //the required size must be at least SFMT_32
 	auto maxSize = SFMT_N32 > size ? SFMT_N32 : size;
-	std::cout << maxSize << "\n";
 
 	//create the aligned memory
-	auto sampleArray = Utility::alignedMemory<uint32_t>(maxSize);
+	int actualSize = 0;
+	auto sampleArray = Utility::alignedMemory<uint32_t>(maxSize,&actualSize);
 	//generate the random numbers
-	sfmt_fill_array32(&gen, sampleArray, maxSize);
+	sfmt_fill_array32(&gen, sampleArray, actualSize);
 	
-
 	//convert each random number in a double value in the range [0-maxValue]
 	//put each sampled number in a ... in increasing order
 	std::vector<double> randomSamples(size);
@@ -75,7 +77,11 @@ namespace Aditum {
 	return find(random);
     }
 
-
+    double Distribution::getMaxValue() const
+    {
+	return maxValue;
+    }
+    
     int Distribution::find(double sample) const
     {
 	int id = 0;

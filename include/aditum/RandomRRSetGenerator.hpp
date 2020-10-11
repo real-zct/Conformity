@@ -31,6 +31,8 @@ namespace Aditum
 	random_generator gen;
     public:
 
+	
+
 	RandomRRSetGenerator(unsigned int seed)
 	{
 	    sfmt_init_gen_rand(&gen, seed);
@@ -43,7 +45,7 @@ namespace Aditum
 
 	template<typename F>
 	std::enable_if_t<Utility::function_traits<F>::arity==3>
-	operator()(Graph &g, node root, F &&f)
+	operator()(const Graph &g, node root, F &&f)
 	{
 	    static_cast<T*>(this) -> operator()(g, root, std::forward<F>(f), [](node){return false;});
 	}
@@ -54,7 +56,7 @@ namespace Aditum
 	    std::is_same<typename Utility::function_traits<C>::return_type, bool>::value && 
 	    Utility::function_traits<F>::arity==3
 	    >
-	operator()(Graph &g, node root, F &&f, C &&c)
+	operator()(const Graph &g, node root, F &&f, C &&c)
 	{
 	    static_cast<T*>(this) -> operator()(g, root, std::forward<F>(f), std::forward<C>(c));
 	}
@@ -71,7 +73,7 @@ namespace Aditum
 	    std::is_same<typename Utility::function_traits<C>::return_type, bool>::value && 
 	    Utility::function_traits<F>::arity==3
 	    >
-	operator()(Graph &g, node root, F &&f, C &&stopCondition)
+	operator()(const Graph &g, node root, F &&f, C &&stopCondition)
 	{
 	    std::stack<node> s;
 	    absl::flat_hash_set<node> visited = {root};
@@ -114,7 +116,7 @@ namespace Aditum
 	    std::is_same<typename Utility::function_traits<C>::return_type, bool>::value && 
 	    Utility::function_traits<F>::arity==3
 	    >
-	operator()(Graph &g, node root, F f, C stopCondition)
+	operator()(const Graph &g, node root, F f, C stopCondition)
 	{
 	    std::stack<node> s;
 	    absl::flat_hash_set<node> visited = {root};
