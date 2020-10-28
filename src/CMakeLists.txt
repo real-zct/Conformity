@@ -7,20 +7,25 @@ set(HEADER_LIST
   "${CMAKE_SOURCE_DIR}/include/aditum/Utility.hpp"
   "${CMAKE_SOURCE_DIR}/include/aditum/io/CapitalScoreFileReader.hpp"
   "${CMAKE_SOURCE_DIR}/include/aditum/io/FileReader.hpp"
+  "${CMAKE_SOURCE_DIR}/include/aditum/io/UserAttributesFileReader.hpp"
+  "${CMAKE_SOURCE_DIR}/include/aditum/AditumAttributeDriven.hpp"
+  "${CMAKE_SOURCE_DIR}/include/aditum/AditumBuilder.hpp"
+  "${CMAKE_SOURCE_DIR}/include/aditum/AttributeWise.hpp"
   )
 
 # Make an automatic library - will be static or dynamic based on user setting
 add_library(aditum ${HEADER_LIST}
   "./AditumGraph.cpp"
   "./CapitalScoreFileReader.cpp"
-  "./Utility.cpp"
-  "./Distribution.cpp")
-
-
+  "./UserAttributesFileReader.cpp"
+  "./Distribution.cpp"
+  "./Utility.cpp")
 
 target_include_directories(aditum
     PUBLIC
        "${CMAKE_SOURCE_DIR}/include")
+
+target_compile_features(aditum PUBLIC cxx_std_17)
 
 target_link_libraries(aditum
   PUBLIC
@@ -29,5 +34,4 @@ target_link_libraries(aditum
   absl::flat_hash_map
   sfmt)
 
-target_compile_features(aditum PRIVATE cxx_std_17)
 

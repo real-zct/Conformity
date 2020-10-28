@@ -1,3 +1,11 @@
+/**
+ *   \file AditumAlgo.hpp
+ *   \brief File containing the base version of the aditum algorithm
+ *
+ * This file contains the base version of the aditum algorithm
+ *
+ */
+
 #ifndef ADITUMALGO_H
 #define ADITUMALGO_H
 
@@ -13,6 +21,7 @@
 
 namespace Aditum
 {
+
     using node = NetworKit::node;
     using edgeweight = NetworKit::edgeweight;
 
@@ -20,16 +29,20 @@ namespace Aditum
      * Base class for every ADITUM
      * alorithm
      */
-    template <typename SetGenerator>
+    template <typename SetGenerator, typename DiversityAwareAlgo>
     class AditumBase: private  RandomRRSetGenerator<SetGenerator>
     {
     protected:
+
 
 	/*!< the aditum graph */
 	AditumGraph &aGraph;
 
 	/*!< the capital-aware node distribution */
 	Distribution nodeDistribution;
+
+	/*!< if false the seeds selection does not need to account for the diversity */
+	bool diversityAware = false;
 
 	/*!< budget for the selection */
 	int k = 0;
@@ -63,22 +76,47 @@ namespace Aditum
 	std::vector<double> nodesAchievedCapital;
     
     
-
-	AditumBase(AditumGraph &graph, Distribution dist, int k, double alpha = 1, double epsilon = 1, double l = 1)
+	/**
+	 * @brief      Constructor
+	 *
+	 * @details    Constructor
+	 *
+	 * @param      graph AditumGraph 
+	 * @param      dist Distribution of nodes which takes into account the capital score of each node
+	 * @param      k budget for the selection of the seed nodes
+	 * @param      alpha weight of the capital score contribution for the objective function
+	 * @param      epsilon approximation ration factor
+	 * @param      l accuracy of the algoritm
+	 
+	 *
+	 * @return     return type
+	 */
+	AditumBase(AditumGraph &graph, Distribution dist, int k,
+		   double alpha = 1, double epsilon = 1, double l = 1)
 	    :nodeSetIndexes {std::vector<absl::flat_hash_set<int>>(aGraph.graph().upperNodeIdBound())},
 	     nodesAchievedCapital {std::vector<double>(aGraph.graph().upperNodeIdBound())},
 	     nodeDistribution{dist},
-	     aGraph{graph}, k{k},  epsilon{epsilon}, l{l} {}
-
-	friend class AditumBuilder;
+	     alpha{alpha},
+	     aGraph{graph}, k{k},  epsilon{epsilon}, l{l}{}
 
 public:
-	//! Destructor
+	/**
+	 * @brief      Destructor
+	 *
+	 * @details    Destructor
+	 */
 	virtual ~AditumBase() = default;
 
 
+	/**
+	 * @brief      Method that computes the seed set
+	 *
+	 * @details    It exectutes the entire aditum algorithm
+	 *
+	 */
 	void run()
 	{
+
 	    //function to compute the logarithm of the binomial coefficient (n k)
 	    auto logcnk = [=](int n, int k) 
 	    {
@@ -90,27 +128,40 @@ public:
 		    ans -= std::log(i);
 		return ans;
 	    };
-
 	    // cambia epsilon con epsPrime
 	    double epsPrime = 5 * std::pow(epsilon*epsilon/(k+1), 1/3);
-	    
+
+	    //set alpha for the score object so that the diversity is neglected
+	    // Utility::ScoreObject::setAlpha(1);
+	    Utility::ScoreObject::alpha = 1;
 	    double kpt = refineKpt(epsPrime);
 	    
 	    // //compute the number of final RR sets required 
 	    double n = aGraph.graph().numberOfNodes();
-	    double theta = (8+2) * n  * (l * std::log(n) + logcnk(n, k) + std::log(2)) / (epsilon * epsilon * kpt);
-
-	    //delete all the rrs sets generated so
+	    
+	    double theta = (8+2*epsilon) * n * (l * std::log(n) + logcnk(n, k) + std::log(2)) / (epsilon * epsilon * kpt);
+	    //enable the diversity aware selection only if
+	    //alpha has weight less than 1 -- alpha==1 means: only capital
+	    diversityAware = alpha<1;
+	    // Utility::ScoreObject::setAlpha(this->alpha);
+	    Utility::ScoreObject::alpha = this->alpha;
 	    nodeSelection(theta);
 	    hasRun = true;
 	}
 
-	
-	virtual void nodeSelection(double theta)
+
+	/**
+	 * @brief      Final step of the aditum algorithm
+	 *
+	 * @details    It generates theta rrseta and then it computes the final seed set
+	 *
+	 * @param      theta, number of required RRSets
+	 *
+	 */
+	void nodeSelection(double theta)
 	{
 	    //reset all data structures
 	    reset(); 
-	    std::cout << "[node selection] theta: " << theta  << "\n";
 
    	    auto roots = nodeDistribution.sample(theta);
 	    //expand the vector for storing the rrsets
@@ -131,19 +182,41 @@ public:
 			       });
 		++offset;
 	    }
-	    std::cout << "[node selection] rrsets generated" << "\n";
-
 	    buildSeedSet();
-	    hasRun = true;
 	}
 
+	/**
+	 * @brief      It returns the final seed set
+	 *
+	 * @details    It returns the final seed set
+	 *
+	 * @param      param
+	 *
+	 * @return     return the seed set computed by the algorithm
+	 */
 	std::set<node> getSeeds()
 	{
 	    if(!hasRun) throw std::runtime_error("You must call run() first!");
 	    return seedSet;
 	}
-	
-	// virtual void buildSeedSetWithDiversity() = 0;
+
+	/**
+	 * @brief      Build the seed set accounting for the diversity factor
+	 *
+	 * @details    This method implements the lazy forward selection as -- @see buildSeedSet.
+	 *             Only this time the value of capital and diversity need to be normalized so
+	 *             that they both are within the range [0,1]. This is needed as diversity and
+	 *             capital usually have different scale
+	 *             
+	 *
+	 * @param      param
+	 *
+	 * @return     return type
+	 */
+	void buildSeedSetWithDiversity()
+	{
+	    static_cast<DiversityAwareAlgo*>(this) -> buildSeedSetWithDiversity();
+	}
 
     private:
 
@@ -217,10 +290,8 @@ public:
 	 */
 	double refineKpt(double epsPrime)
 	{
-	    //build the seed set with the RR sets derived from the
-	    //previous call to kptEstimation
+
 	    double kptStar = kptEstimation();
-	    std::cout << "[refine kpt]:" << kptStar << "\n";
 	    buildSeedSet();
 
 	    //remove all the information related to these RR-Sets
@@ -249,9 +320,7 @@ public:
 				    return isContained;
 				});
 	    }
-	    double coveredFraction = coveredSets/ thetaPrime;
-	    
-	    std::cout << coveredFraction * nodeDistribution.getMaxValue() << "\n";
+	    double coveredFraction = coveredSets / thetaPrime;
 
 	    return std::max(coveredFraction * n / (1+epsPrime), kptStar);
 	}
@@ -281,8 +350,8 @@ public:
 	/**
 	 * @brief      Seed Set construction
 	 *
-	 * @details    It constructs the Seed Set based without considering the 
-	 *             diversity contribution
+	 * @details    It constructs the Seed Set based on the current RRSets 
+	 *             without considering the diversity contribution
 	 *
 	 * @param      param
 	 *
@@ -290,8 +359,14 @@ public:
 	 */
 	void buildSeedSet() 
 	{
-	    std::vector<Utility::ScoreObject> q(nodesAchievedCapital.size());
 	    
+	    if(diversityAware)
+	    {
+		buildSeedSetWithDiversity();
+		return;
+	    }
+	    
+	    std::vector<Utility::ScoreObject> q(nodesAchievedCapital.size());
 	    //init without diversity
 	    #pragma omp parallel
 	    for (unsigned int i = 0; i < q.size(); ++i)
@@ -322,84 +397,8 @@ public:
 		}
 	    }
 	}
-
     };
 
-
-class AditumBuilder
-{
-private:
-    AditumGraph *aGraph = nullptr;
-
-    int k;
-
-    int alpha = 1;
-
-    double epsilon = 1;
-
-    double l = 1;
-
-    double targetThreshold;
-       
-
-public:
-
-    AditumBuilder& setGraph(AditumGraph& graph){
-	aGraph = &graph;
-	
-	return *this;
-    }
-    
-    AditumBuilder& setK(int k)
-    {
-	this->k = k;
-	return *this;
-    }
-
-    AditumBuilder& setAlpha(double alpha)
-    {
-	this->alpha = alpha;
-	return *this;
-    }
-
-    AditumBuilder& setEpsilon(double epsilon)
-    {
-	this->epsilon = epsilon;
-	return *this;
-    }
-
-    AditumBuilder& setL(double l)
-    {
-	this->l = l;
-	return *this;
-    }
-
-    AditumBuilder& setTargetThreshold(double threshold)
-    {
-	this->targetThreshold = threshold;
-	return *this;
-    }
-
-
-    
-
-    template<typename SetGenerator>
-    AditumBase<SetGenerator> build()
-    {
-	//create the distribution
-	std::vector<double>scoreVector(aGraph->scores().size());
-
-	#pragma omp parallel
-	for(unsigned int i=0 ; i<scoreVector.size() ; i++)
-	    if(double iScore = aGraph->score(i);
-	       iScore >= targetThreshold)
-		scoreVector[i] = iScore;
-
-	Distribution nodeDistribution(scoreVector);
-	return 	AditumBase<SetGenerator>(*aGraph,nodeDistribution, k,alpha,epsilon,l);
-    }
-
-};
 }
 
 

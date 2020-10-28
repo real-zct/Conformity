@@ -77,9 +77,8 @@ __Status__
 Done|Tested
 }
 
-class UserAttributes {
-- map<node, vector<any>> userAttributes
-__Implement the vistir pattern (somehow)__
+class AttributeDriven {
+- vector<vector<variant<int, string>> userAttributes
 }
 
 class FileReader {
@@ -117,7 +116,6 @@ AttributeDriven <|-- ClassBased
 AttributeDriven <|-- EntropyBased
 
 
-AttributeDriven - UserAttributes : > requires
 AditumAlgo - AditumGraph :> requires
 AditumAlgo - RRSetGenerator :> requires
 AditumAlgo - Distribution :> requires

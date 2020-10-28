@@ -20,8 +20,15 @@ namespace  Aditum
 	    auto millis = sc::duration_cast<sc::milliseconds>(since_epoch);
 	    return millis.count();
 	}
+	//alpha initialization
+	// double ScoreObject::alpha = 0;
+	// void ScoreObject::setAlpha(double newAlpha)
+	// {
+	//     std::cout << "setting new alpha: " << newAlpha<< "\n";
 
-
+	//     ScoreObject::alpha = newAlpha;
+	// }
+	
 	// T* alignedMemory(unsigned int atLeastSize, int *arraySize)
 	// {
 	//     std::cout << "=======aligned=====" << "\n";

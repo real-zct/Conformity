@@ -6,29 +6,39 @@
 #include <aditum/Distribution.hpp>
 #include <networkit/graph/Graph.hpp>
 #include <networkit/io/EdgeListReader.hpp>
+#include <aditum/AttributeWise.hpp>
+#include <aditum/AditumBuilder.hpp>
+#include <aditum/io/UserAttributesFileReader.hpp>
 
 
 TEST_CASE( "Aditum Base", "Ig Loading" ) {
     Aditum::AditumGraphBuilder builder;
     builder = builder.setGraphPath("/home/antonio/Garbage/InstagramLCC/graph_lt.inf")
 	.setScoresPath("/home/antonio/Garbage/InstagramLCC/lurker_score.txt");
+
+    Aditum::UserAttributesFileReader a("\\s+");
+    std::string path = "/home/antonio/Garbage/InstagramLCC/graph_lt_exponential_10_user_attributes.txt";
+    std::vector<std::vector<std::variant<int, std::string>>> data{a.read(path)};
     Aditum::AditumGraph g(builder.build());
-    INFO(g.score(0));
-
-    Aditum::AditumBuilder algoBuilder;
+    Aditum::AditumBuilder<Aditum::AttributeWiseBuilder> algoBuilder;
     algoBuilder.setGraph(g)
-	.setK(10)
-	.setTargetThreshold(0.42);
+	.setAlpha(0.2)
+	.setEpsilon(1)
+	.setK(50)
+	.setTargetThreshold(0.42)
+	.setAttributes(data);
     
-    auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator>();
-    algo.run();
+    using SetGenerator = Aditum::LTRandomRRSetGenerator;
+    using DiversityAware = Aditum::AttributeWise<SetGenerator>;
 
-    auto seeds = algo.getSeeds();
+    auto algo = algoBuilder.build< Aditum::LTRandomRRSetGenerator,
+				  Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>();
+    algo->run();
+
+    auto seeds = algo->getSeeds();
 
     for(auto x : seeds)
-	INFO(x);
-    
-    
+	std::cout << x << "\n";
     
 }
 

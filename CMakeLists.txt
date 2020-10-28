@@ -4,6 +4,7 @@ project(aditum
     DESCRIPTION "Attribute based diversification of seed fo targeted influence maximization"
     LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # if(MSVC)
@@ -55,6 +56,7 @@ add_subdirectory(extern)
 # The compiled library code is here
 
 add_subdirectory(src)
+
 
 # The executable code is here
 add_subdirectory(app)

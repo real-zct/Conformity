@@ -67,6 +67,12 @@ namespace Aditum
 	 */
 	struct ScoreObject
 	{
+	    /*!< Weighting factor between capital and diversity */
+	    inline static double alpha = 0;
+
+	    // static void setAlpha(double newAlpha);
+
+
 	    /*!< node the score refers to */
 	    unsigned int node;
 
@@ -85,9 +91,11 @@ namespace Aditum
 
     	    bool operator<(const ScoreObject &other) const
 	    {
-		if(iteration == other.iteration)
-		    return (capitalScore + diversityScore) < (other.capitalScore+other.diversityScore);
-		return iteration < other.iteration;
+		// if(iteration == other.iteration)
+		    return (alpha*capitalScore + (1-alpha)*diversityScore) <
+			(alpha*other.capitalScore+ (1-alpha)*other.diversityScore);
+
+		// return iteration < other.iteration;
 	    }
 	    
 	};

@@ -7,12 +7,24 @@
 #include <iostream>
 #include <SFMT.h>
 #include <absl/container/flat_hash_set.h>
+#include <absl/container/flat_hash_map.h>
 #include <aditum/RandomRRSetGenerator.hpp>
 #include <aditum/AditumGraph.hpp>
 #include <aditum/AditumAlgo.hpp>
 #include <aditum/Distribution.hpp>
 #include <memory>
 #include <algorithm>
+#include <aditum/io/UserAttributesFileReader.hpp>
+#include <variant>
+
+
+template<typename ... Ts>
+struct visitor : Ts... {
+    using Ts::operator()...; 
+};
+template<typename ... Ts> visitor(Ts...) -> visitor<Ts...>;
+
+
 
 TEST_CASE( "Graph Loading", "[.]" ) {
     INFO("test");
@@ -41,7 +53,23 @@ TEST_CASE("ABSEIL", "[.]") {
 	INFO(x);
 }
 
-TEST_CASE("rr set", "rr set"){
+TEST_CASE("abslmap", "mapp") {
+    using symbol = std::variant<int, std::string>;
+    absl::flat_hash_map<symbol, int> m;
+    symbol s1{5};
+    symbol s2{"ciao"};
+
+    m[s1] = 10;
+    std::cout << m[s1] << "\n";
+    try{
+    std::cout << m.at(s2) << "\n";
+    }catch(std::exception &e) {std::cout<<"exception"<< "\n";}
+    m[s2] += 1;
+    std::cout << m[s2] << "\n";
+}
+
+
+TEST_CASE("rr set", "[.]"){
     NetworKit::EdgeListReader reader(' ', 0, "#", true, true);
     NetworKit::Graph g =  reader.read("/home/antonio/Garbage/graph.txt");
     REQUIRE (g.numberOfNodes() == 8);
@@ -111,4 +139,19 @@ TEST_CASE("score object", "[.]"){
     std::cout << (SO{0,0,1,0} < SO{0,0,2,0}) << "\n";
 }
 
+TEST_CASE("user attributes", "uat")
+{
+    Aditum::UserAttributesFileReader a("\\s+");
+    std::vector<std::vector<std::variant<int, std::string>>> data{a.read("/home/antonio/Garbage/InstagramLCC/attributes.txt")};
+    
 
+    for(auto v : data){
+	for (auto item : v){
+	    std::visit( visitor {
+		    [](int arg) { std::cout << arg*2 << "\n"; },
+		    [](std::string arg) {std::cout << arg << "s\n";}
+		},item);
+	  }
+     }
+
+}
