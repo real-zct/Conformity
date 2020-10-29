@@ -11,6 +11,7 @@ set(HEADER_LIST
   "${CMAKE_SOURCE_DIR}/include/aditum/AditumAttributeDriven.hpp"
   "${CMAKE_SOURCE_DIR}/include/aditum/AditumBuilder.hpp"
   "${CMAKE_SOURCE_DIR}/include/aditum/AttributeWise.hpp"
+  "${CMAKE_SOURCE_DIR}/include/aditum/ClassBased.hpp"
   )
 
 # Make an automatic library - will be static or dynamic based on user setting

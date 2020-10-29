@@ -9,9 +9,9 @@
 #include <aditum/AttributeWise.hpp>
 #include <aditum/AditumBuilder.hpp>
 #include <aditum/io/UserAttributesFileReader.hpp>
+#include <aditum/ClassBased.hpp>
 
-
-TEST_CASE( "Aditum Base", "Ig Loading" ) {
+TEST_CASE( "Attr Wise", "[.]" ) {
     Aditum::AditumGraphBuilder builder;
     builder = builder.setGraphPath("/home/antonio/Garbage/InstagramLCC/graph_lt.inf")
 	.setScoresPath("/home/antonio/Garbage/InstagramLCC/lurker_score.txt");
@@ -33,6 +33,35 @@ TEST_CASE( "Aditum Base", "Ig Loading" ) {
 
     auto algo = algoBuilder.build< Aditum::LTRandomRRSetGenerator,
 				  Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>();
+    algo->run();
+
+    auto seeds = algo->getSeeds();
+
+    for(auto x : seeds)
+	std::cout << x << "\n";
+}
+
+
+
+TEST_CASE( "Class Based", "clas based" ) {
+    Aditum::AditumGraphBuilder builder;
+    builder = builder.setGraphPath("/home/antonio/Garbage/InstagramLCC/graph_lt.inf")
+	.setScoresPath("/home/antonio/Garbage/InstagramLCC/lurker_score.txt");
+
+    Aditum::UserAttributesFileReader a("\\s+");
+    std::string path = "/home/antonio/Garbage/InstagramLCC/graph_lt_exponential_10_user_attributes.txt";
+    std::vector<std::vector<std::variant<int, std::string>>> data{a.read(path)};
+    Aditum::AditumGraph g(builder.build());
+    Aditum::AditumBuilder<Aditum::ClassBasedBuilder> algoBuilder;
+    algoBuilder.setGraph(g)
+	.setAlpha(0.2)
+	.setEpsilon(1)
+	.setK(50)
+	.setTargetThreshold(0.42)
+	.setAttributes(data);
+    
+    auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator,
+				  Aditum::ClassBased<Aditum::LTRandomRRSetGenerator>>();
     algo->run();
 
     auto seeds = algo->getSeeds();

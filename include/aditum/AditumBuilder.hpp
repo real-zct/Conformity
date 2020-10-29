@@ -2,6 +2,7 @@
 #define ADITUMBUILDER_H
 
 #include <aditum/AditumAlgo.hpp>
+#include <variant>
 
 namespace Aditum
 {
@@ -40,6 +41,9 @@ protected:
 
     /*!< Radius for the hamming ball diversity algorithm */
     int radius = 0;
+
+    /*!< Rewards fot the user selection */
+    std::vector<double> userRewards;
 
 public:
 
@@ -120,6 +124,16 @@ public:
     auto& setRadius(int radius)
     {
 	radius = radius;
+	return *this;
+    }
+
+
+    /**
+     * Rewards for the class based diversity
+     */
+    auto& setRewards(std::vector<double>& rewards)
+    {
+	rewards = rewards;
 	return *this;
     }
 
