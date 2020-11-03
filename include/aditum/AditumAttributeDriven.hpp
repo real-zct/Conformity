@@ -67,6 +67,7 @@ protected:
 	
 	//sort q
 	std::make_heap(q.begin(), q.end());
+
 	return q;
     }
 
@@ -82,7 +83,7 @@ protected:
 		       double maxCapital, double maxDiversity)
     {
 	this->seedSet.clear();
-	
+
 	while(this->seedSet.size()<this->k)
 	{
 	    std::pop_heap(q.begin(), q.end());

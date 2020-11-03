@@ -139,7 +139,7 @@ TEST_CASE("score object", "[.]"){
     std::cout << (SO{0,0,1,0} < SO{0,0,2,0}) << "\n";
 }
 
-TEST_CASE("user attributes", "uat")
+TEST_CASE("user attributes", "[.]")
 {
     Aditum::UserAttributesFileReader a("\\s+");
     std::vector<std::vector<std::variant<int, std::string>>> data{a.read("/home/antonio/Garbage/InstagramLCC/attributes.txt")};

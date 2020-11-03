@@ -1,10 +1,11 @@
 #ifndef ATTRIBUTEWISE_H
 #define ATTRIBUTEWISE_H
 
+
 #include <aditum/AditumAttributeDriven.hpp>
 #include <absl/container/flat_hash_map.h>
 #include <aditum/AditumBuilder.hpp>
-#include <iostream>
+
 namespace Aditum
 {
 
@@ -36,7 +37,7 @@ public:
 	//initialize the map for storing the number of nodes
 	//having a particular attribute in their profile
 	std::vector<absl::flat_hash_map<symbol, int>> coveredAttributes(this->numberOfAttributes);
-	
+
 	//function for updating the covered symbols
 	auto updateCoveredSymbols = [&](unsigned int node)
 	{
@@ -45,6 +46,7 @@ public:
 	    auto itSymbol = attributes.begin();
 	    for(unsigned int i=0; itSymbol!=attributes.end(); ++i, ++itSymbol)
 		coveredAttributes[i][*itSymbol] += 1;
+
 	};
 	
 	auto computeMarginalDiversity = [&](unsigned int node)
@@ -73,7 +75,6 @@ public:
 
         //initialize the score vector	
 	auto q = this->getInitialScoreVector(maxCapital, maxDiversity);
-
         this->selectionLoop(q, updateCoveredSymbols, computeMarginalDiversity, maxCapital, maxDiversity);
      }
 };

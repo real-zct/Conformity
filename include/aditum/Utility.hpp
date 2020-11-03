@@ -91,15 +91,12 @@ namespace Aditum
 
     	    bool operator<(const ScoreObject &other) const
 	    {
-		// if(iteration == other.iteration)
 		    return (alpha*capitalScore + (1-alpha)*diversityScore) <
 			(alpha*other.capitalScore+ (1-alpha)*other.diversityScore);
-
-		// return iteration < other.iteration;
 	    }
 	    
 	};
-    
+
     }
 }
 #endif
