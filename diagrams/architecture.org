@@ -1,4 +1,4 @@
-#+startup:inlineimages
+l#+startup:inlineimages
 * Class Diagrams
 #+BEGIN_SRC plantuml :file classDiagram.png
 ' run/buildSeedSet computes the seed set without considering the diversity contribution'

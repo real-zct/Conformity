@@ -46,7 +46,6 @@ public:
 	    auto itSymbol = attributes.begin();
 	    for(unsigned int i=0; itSymbol!=attributes.end(); ++i, ++itSymbol)
 		coveredAttributes[i][*itSymbol] += 1;
-
 	};
 	
 	auto computeMarginalDiversity = [&](unsigned int node)

@@ -7,12 +7,12 @@ project(aditum
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# if(MSVC)
-#   add_compile_options(/W3 /WX)
-# else()
-#   add_compile_options(-W -Wall -Werror)
-# endif()
-
+#if(MSVC)
+#  add_compile_options(/W3 /WX)
+#else()
+#  add_compile_options(-W -Wall -Werror)
+#endif()
+#
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # Optionally set things like CMAKE_CXX_STANDARD, CMAKE_POSITION_INDEPENDENT_CODE here

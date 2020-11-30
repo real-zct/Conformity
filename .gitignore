@@ -1,5 +1,6 @@
 build/
 .gitignore
 #*
+*.org
 compile_commands:w.json
 .clangd/

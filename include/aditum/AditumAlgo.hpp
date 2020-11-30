@@ -1,3 +1,4 @@
+
 /**
  *   \file AditumAlgo.hpp
  *   \brief File containing the base version of the aditum algorithm

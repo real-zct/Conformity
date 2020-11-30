@@ -33,7 +33,6 @@ public:
 	       double alpha = 1, double epsilon = 1, double l = 1):
 	Base(graph, dist, userAttributes, k, alpha, epsilon,l), userRewards{userRewards} {}
 
-
     void buildSeedSetWithDiversity() 
     {
 	//rewards sum for each class 
