@@ -31,7 +31,7 @@ Upon this assumption, we design a class of monotone   submodular functions speci
  constant-factor guarantee of optimality. More precisely, 
 we formulate the \textit{attribute-based diversity-sensitive targeted influence maximization} problem   under
  the state-of-the-art reverse influence sampling framework,  and we develop a method,
-	dubbed _ADITUM_, that  ensures a  ($1-1/e-\epsilon$)-approximate
+ dubbed _ADITUM_, that  ensures a  (1-1/e-&epsilon;)-approximate
  solution under the general triggering diffusion model.  
 
 Extensive experimental evaluation based on real-world networks
