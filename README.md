@@ -37,7 +37,7 @@ we formulate the \textit{attribute-based diversity-sensitive targeted influence 
 Extensive experimental evaluation based on real-world networks
  as well as  synthetically generated data has shown the meaningfulness and
  uniqueness of  our proposed class of set diversity functions and
- of the __ADITUM_ algorithm, also in comparison with
+ of the _ADITUM_ algorithm, also in comparison with
   methods that exploit numerical-attribute-based diversity
  and topology-driven diversity in influence maximization.  
 
