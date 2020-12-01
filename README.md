@@ -1,12 +1,11 @@
 
-
 # Overview
 
 This project is developed as part of the following research paper:
 
 [A. Caliò, A. Tagarelli. 
 Attribute based Diversification of Seeds for Targeted Influence Maximization problem. 
-Information Sciences, 2020), July 6th - July 10th, 2020,  Southampton, UK](<https://doi.org/10.1016/j.ins.2020.08.093>).
+Information Sciences, 2020)](<https://doi.org/10.1016/j.ins.2020.08.093>).
 
 Please cite the above paper in any research publication you may produce using this code or data/analysis derived from it.
 
@@ -58,9 +57,9 @@ In order to compile the project you need:
 
 Clone this repository as well as the networkit submodule.
 
-cd to/your/path
-git clone <https://github.com/acalio/aditum.git>
-git submodule update &#x2013;init &#x2013;recursive
+	cd to/your/path
+	git clone <https://github.com/acalio/aditum.git>
+	git submodule update --init --recursive
 
 The last command will download two libraries: 
 
@@ -70,11 +69,11 @@ The last command will download two libraries:
 Once you downloaded all the required files, 
 you need to compile the project as follows:
 
-cd to/your/path
-mkdir build
-cd build
-cmake ..
-make app
+	cd to/your/path
+	mkdir build
+	cd build
+	cmake ..
+	make app
 
 This will create an executable file in the build folder, under the `app` subdirectory.
 
@@ -91,13 +90,14 @@ cd root-folder/build/app
 Let's say you want to run the Attribute-Wise variant of the algorithm,
 then you have to issue the following command:
 
-./app -a wise &#x2013;graph /path/to/the/influence/graph \\
-&#x2013;capital /path/to/the/capital/scores \\
-&#x2013;target-threshold  0.42 \\
-&#x2013;output /path/where/the/seeds/will/be/stored \\
-&#x2013;diffusion-model lt \\
-&#x2013;k 20 \\
-&#x2013;attributes *path/the/the/user/categorical/attributes* \\
+	./app -a wise 
+	--graph /path/to/the/influence/graph \
+	--capital /path/to/the/capital/scores \
+    --target-threshold  0.42 \
+	--output /path/where/the/seeds/will/be/stored \
+	--diffusion-model lt \
+	--k 20 \
+	--attributes /path/the/the/user/categorical/attributes \
 
 The above command will select 20 nodes as seed of the propagation process and store 
 them in the file provided as the `--output` parameter.
@@ -110,24 +110,18 @@ issue the command:
 
 # Inputs & Outputs
 
-Each variant of the algorithm requires the following files as input:
 
--   An influence graph in edgelist format: 
-    
-    <src-node> <trg-node> <influence-weight>
+# Extending the framework
 
--   A file containing the capital score associated with each node in the graph.
-    Each line needs to have the following format:
-    
-    <node id>: <capital score>
+-   input-graph: the path to a file storing the edge-list of a directed (weighted) network
+-   output-file: the path to a file storing results, i.e., <v, k>, where v is the id of a node and k the index assigned by the selected graph-decomposition algorithm
+-   decomposition-algorithm: specifies a graph-decomposition algorithm. Available options:
 
--   A file containing the categorical attributes associated to each node in the graph.
-    Each line needs to have the following format:
-    
-    <node id> <symbol-for-attr1> <symbol-for-attr2> &#x2026;.. <symbol-for-attrN>
-    
-    A symbol can be either a string or an integer &#x2013; so that it can be interpreted as a categorical value.
+<span class="underline">kcore</span>, <span class="underline">kpeak</span>, <span class="underline">ktruss</span>, <span class="underline">neighcoreness</span>, <span class="underline">dgcore</span>.
 
-The output produced by the algorithm is a simple file containing in each line the id
-of the node selected as seed of the propagation process.
+For instance, if you need to carry out a core-decomposition:
+
+./deco input-edgelist results.txt kcore
+
+The program will store in results.txt the output of the computation.
 
