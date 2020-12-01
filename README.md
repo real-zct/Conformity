@@ -5,7 +5,7 @@ This project is developed as part of the following research paper:
 
 [A. Caliò, A. Tagarelli. 
 Attribute based Diversification of Seeds for Targeted Influence Maximization problem. 
-Information Sciences, 2020)](<https://doi.org/10.1016/j.ins.2020.08.093>).
+Information Sciences, 2020](<https://doi.org/10.1016/j.ins.2020.08.093>).
 
 Please cite the above paper in any research publication you may produce using this code or data/analysis derived from it.
 
