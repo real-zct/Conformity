@@ -31,13 +31,13 @@ Upon this assumption, we design a class of monotone   submodular functions speci
  constant-factor guarantee of optimality. More precisely, 
 we formulate the \textit{attribute-based diversity-sensitive targeted influence maximization} problem   under
  the state-of-the-art reverse influence sampling framework,  and we develop a method,
- dubbed \textsf{ADITUM}, that  ensures a  $(1-1/e-&epsilon;)$-approximate
+ dubbed _ADITUM_, that  ensures a  $(1-1/e-&epsilon;)$-approximate
  solution under the general triggering diffusion model.  
 
 Extensive experimental evaluation based on real-world networks
  as well as  synthetically generated data has shown the meaningfulness and
  uniqueness of  our proposed class of set diversity functions and
- of the \textsf{ADITUM} algorithm, also in comparison with
+ of the __ADITUM_ algorithm, also in comparison with
   methods that exploit numerical-attribute-based diversity
  and topology-driven diversity in influence maximization.  
 
@@ -50,7 +50,7 @@ In order to compile the project you need:
 -   OpenMP for parallelism
 -   Cmake - version 3.17. or higher
 -   Build System (e.g.,Make, Ninja)
--   Boost program<sub>options</sub> library
+-   Boost program_options library
 
 
 # Installation
@@ -83,7 +83,7 @@ This will create an executable file in the build folder, under the `app` subdire
 The following steps are required to run the program. 
 
 First of all, move into the building folder &#x2013; if you use the same instruction in the installation
-section this is the  `build` folder under the root folder of the project &#x2013; 
+section this is the  `build` folder under the root folder of the project.
 
 cd root-folder/build/app
 
@@ -105,23 +105,27 @@ them in the file provided as the `--output` parameter.
 There are many other options available. To have a more comprehensive guide just
 issue the command:
 
-./app &#x2013;help
+	./app --help
 
 
 # Inputs & Outputs
+Each variant of the algorithm requires the following files as input:
+- An influence graph in edgelist format: 
+     
+       <src-node> <trg-node> <influence-weight>
 
+- A file containing the capital score associated with each node in the graph.
+  Each line needs to have the following format:
+       
+		<node id>: <capital score>
 
-# Extending the framework
+- A file containing the categorical attributes associated to each node in the graph.
+  Each line needs to have the following format:
+    
+		<node id> <symbol-for-attr1> <symbol-for-attr2> ..... <symbol-for-attrN>
+  
+  A symbol can be either a string or an integer -- so that it can be interpreted as a categorical value.
 
--   input-graph: the path to a file storing the edge-list of a directed (weighted) network
--   output-file: the path to a file storing results, i.e., <v, k>, where v is the id of a node and k the index assigned by the selected graph-decomposition algorithm
--   decomposition-algorithm: specifies a graph-decomposition algorithm. Available options:
-
-<span class="underline">kcore</span>, <span class="underline">kpeak</span>, <span class="underline">ktruss</span>, <span class="underline">neighcoreness</span>, <span class="underline">dgcore</span>.
-
-For instance, if you need to carry out a core-decomposition:
-
-./deco input-edgelist results.txt kcore
-
-The program will store in results.txt the output of the computation.
+The output produced by the algorithm is a simple file containing on each line the id
+of the node selected as seed of the propagation process.
 
