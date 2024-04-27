@@ -55,7 +55,7 @@ struct diffusion
 /**
  * Validate a generic input value
  */
-template <typename T>
+template <typename T> // template 关键字告诉C++编译器 我要开始泛型了.你不要随便报错
 std::string validatedValue(boost::any &v, std::vector<T> availableOptions, const std::vector<T> &values)
 {
 	// Make sure no previous assignment to 'a' was made.
@@ -90,7 +90,7 @@ void validate(boost::any &v, const std::vector<std::string> &values, algorithm *
 	};
 
 	auto s = validatedValue(v, availableAlgorithms, values);
-	v = boost::any(algorithm(s));
+	v = boost::any(algorithm(s)); //
 }
 
 /**
@@ -109,7 +109,7 @@ void validate(boost::any &v, const std::vector<std::string> &values, diffusion *
 
 /**
  * Forward declation.
- * This function taks a generic AditumBuilder and set its
+ * This function taks a generic AditumBuilder and set itse
  * member fields.
  * This function is only a placeholder that needs to be
  * specialized for each Aditum Algorithm

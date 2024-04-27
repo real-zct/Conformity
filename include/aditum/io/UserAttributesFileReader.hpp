@@ -8,14 +8,14 @@
 
 namespace Aditum
 {
-class UserAttributesFileReader
-{
-private:
-    std::regex lineRegex;
+    class UserAttributesFileReader
+    {
+    private:
+        std::regex lineRegex;
 
-public:
-    UserAttributesFileReader(std::string stringRegex = "\\s+");
-    std::vector<std::vector<std::variant<int, std::string>>> read(std::string path);
-};
+    public:
+        UserAttributesFileReader(std::string stringRegex = "\\s+");
+        std::vector<std::vector<std::variant<int, std::string>>> read(std::string path);
+    };
 }
 #endif
