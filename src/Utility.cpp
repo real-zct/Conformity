@@ -9,7 +9,7 @@ namespace  Aditum
     {
 
 	unsigned int now()
-	{
+	{//用于获取当前时间的时间戳（以毫秒为单位）
 	    namespace sc = std::chrono;
 	    auto time = sc::system_clock::now(); // get the current time
 

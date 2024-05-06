@@ -113,9 +113,8 @@ namespace Aditum
 		void run()
 		{
 
-			// function to compute the logarithm of the binomial coefficient (n k)
-			auto logcnk = [=](int n, int k)
-			{
+			// function to compute the algorithm of the binomial coefficient (n k)
+			auto logcnk = [=](int n, int k) { // lambda函数，用于计算二项式系数的对数
 				double ans = 0;
 				for (int i = n - k + 1; i <= n; i++)
 					ans += std::log(i);
@@ -124,21 +123,21 @@ namespace Aditum
 					ans -= std::log(i);
 				return ans;
 			};
-			// cambia epsilon con epsPrime
+			// cambia epsilon con epsPrime，用 epsPrime 替换 epsilon，epsPrime是要生成的额外RR集的数量
 			double epsPrime = 5 * std::pow(epsilon * epsilon / (k + 1), 1 / 3);
 
 			// set alpha for the score object so that the diversity is neglected
 			//  Utility::ScoreObject::setAlpha(1);
 			Utility::ScoreObject::alpha = 1;
+
+			// 估算所需RR集的数量，theta为求得的所需RR集的数量
 			double kpt = refineKpt(epsPrime);
-
-			// //compute the number of final RR sets required
 			double n = aGraph.graph().numberOfNodes();
-
 			double theta = (8 + 2 * epsilon) * n * (l * std::log(n) + logcnk(n, k) + std::log(2)) / (epsilon * epsilon * kpt);
+
 			// enable the diversity aware selection only if
 			// alpha has weight less than 1 -- alpha==1 means: only capital
-			diversityAware = alpha < 1;
+			diversityAware = alpha < 1; // diversityAware为布尔值，用来判定当前是否要加入多样性考量
 			// Utility::ScoreObject::setAlpha(this->alpha);
 			Utility::ScoreObject::alpha = this->alpha;
 			nodeSelection(theta);
@@ -155,17 +154,18 @@ namespace Aditum
 		 */
 		void nodeSelection(double theta)
 		{
-			// reset all data structures
+			// 生成RR集然后计算最终的种子集
+			//  reset all data structures
 			reset();
 
-			auto roots = nodeDistribution.sample(theta);
+			auto roots = nodeDistribution.sample(theta); // 选择theta个源节点
 			// expand the vector for storing the rrsets
 			int offset = 0;
 			rrsets.resize(roots.size());
 			setRoot.resize(roots.size());
 
 			for (auto root : roots)
-			{
+			{ // 有一次循环就生成一个RR集合
 				setRoot[offset] = root;
 				static_cast<RandomRRSetGenerator<SetGenerator> *>(this)->
 				operator()(aGraph.graph(),
@@ -225,6 +225,7 @@ namespace Aditum
 		 */
 		double kptEstimation()
 		{
+			// 首先生成数量相对较少的 RR 集，并在此基础上计算出预期传播的初始近似值。反复增加 RR 集的数量，直到估计值符合一定的误差范围。
 			double m = aGraph.graph().numberOfEdges();
 			double n = aGraph.graph().numberOfNodes();
 			double log2N = log2(n);
@@ -286,7 +287,8 @@ namespace Aditum
 		 */
 		double refineKpt(double epsPrime)
 		{
-
+			// 根据 KPTEstimation 最后一次迭代中生成的随机 RR 集计算初始种子集，并根据新选择的 RR 集估算初始种子集的扩散；
+			// 这些新 RR 集的数量保持在合理的高数量，以确保最后一次估算的准确性。最后，RefineKPT会返回第一个近似值和最后一个近似值中的最大值。
 			double kptStar = kptEstimation();
 			buildSeedSet();
 
@@ -364,7 +366,7 @@ namespace Aditum
 			for (unsigned int i = 0; i < q.size(); ++i)
 				q[i] = Utility::ScoreObject{i, 0, nodesAchievedCapital[i], 0};
 
-			std::make_heap(q.begin(), q.end());
+			std::make_heap(q.begin(), q.end());//将向量 q 转换为一个最大堆。
 
 			seedSet.clear();
 			while (seedSet.size() < k)

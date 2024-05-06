@@ -84,8 +84,7 @@ namespace Aditum
 	{
 	public:
 		template <typename SetGenerator, typename DiversityAwareAlgo>
-		AditumBase<SetGenerator, DiversityAwareAlgo> *build()
-		{
+		AditumBase<SetGenerator, DiversityAwareAlgo> *build(){
 			Distribution nodeDistribution = computeDistribution();
 			return new AttributeWise<SetGenerator>(*aGraph,
 												   nodeDistribution,

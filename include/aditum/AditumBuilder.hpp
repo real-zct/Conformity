@@ -137,8 +137,8 @@ namespace Aditum
          * Create the aditum algorithm
          */
         template <typename SetGenerator, typename DiversityAwareAlgo>
-        AditumBase<SetGenerator, DiversityAwareAlgo> *build()
-        {
+        AditumBase<SetGenerator, DiversityAwareAlgo> *build(){
+            //这段代码的作用是创建一个具有特定类型参数的 AditumBase 对象，并且返回指向该对象的指针
             return static_cast<ConcreteBuilder *>(this)->template build<SetGenerator, DiversityAwareAlgo>();
         }
 
@@ -149,8 +149,10 @@ namespace Aditum
             std::vector<double> scoreVector(aGraph->scores().size());
 
 #pragma omp parallel
+            // #pragma omp parallel 是一种用于并行编程的指令，用于在 OpenMP（Open Multi-Processing）
+            // 环境中创建并行执行的代码段。这个指令告诉编译器，以下代码块应该并行执行。在执行时，该代码块中的工作将被分配给多个线程，并行地执行。
             for (unsigned int i = 0; i < scoreVector.size(); i++)
-                if (double iScore = aGraph->score(i);
+                if (double iScore = aGraph->score(i); // 只保留大于targetThreshold的节点资本分数
                     iScore >= targetThreshold)
                     scoreVector[i] = iScore;
 

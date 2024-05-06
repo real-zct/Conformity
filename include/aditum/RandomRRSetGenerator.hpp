@@ -106,8 +106,14 @@ namespace Aditum
 			Utility::function_traits<C>::arity == 1 &&
 			std::is_same<typename Utility::function_traits<C>::return_type, bool>::value &&
 			Utility::function_traits<F>::arity == 3>
-		operator()(const Graph &g, node root, F f, C stopCondition)
-		{
+		/**
+		 * std::enable_if_t 是用于模板元编程的 SFINAE（Substitution Failure Is Not An Error）技术。它确保仅当满足某些条件时才启用该操作符：
+			Utility::function_traits<C>::arity == 1：确保 stopCondition 函数对象只接受一个参数。
+			std::is_same<typename Utility::function_traits<C>::return_type, bool>::value：确保 stopCondition 函数对象的返回类型是 bool。
+			Utility::function_traits<F>::arity == 3：确保 F 函数对象接受三个参数。
+		*/
+		operator()(const Graph & g, node root, F f, C stopCondition)
+		{//生成一个RR集并返回
 			std::stack<node> s;
 			absl::flat_hash_set<node> visited = {root};
 			s.push(root);
@@ -120,20 +126,21 @@ namespace Aditum
 				if (stopCondition(v))
 					break;
 
-				double random = sfmt_genrand_real1(&gen);
+				double random = sfmt_genrand_real1(&gen);//生成一个 [0, 1) 范围内的随机浮点数，并将其赋值给变量 random
 				g.forInEdgesOf(v, [&](node, node src, edgeweight weight)
-							   {
-		    //if random < 0 v has already been activated by one of
-		    //its in-neighbor in a previous iteration 
-		    if (random<0)
-			return;
-		    random -= weight;
-		    //src is the one to activate v
-		    if(random<0 && !visited.contains(src)){
-			f(src, v, weight);
-			s.push(src);
-			visited.emplace(src);
-		    } });
+				{
+		    		//if random < 0 v has already been activated by one of
+		    		//its in-neighbor in a previous iteration 
+		    		if (random<0)
+						return;
+		    		random -= weight;
+		    			//src is the one to activate v
+		    		if(random<0 && !visited.contains(src)){
+						f(src, v, weight);
+						s.push(src);
+						visited.emplace(src);
+		    		} 
+				});
 
 			} while (!s.empty());
 		}

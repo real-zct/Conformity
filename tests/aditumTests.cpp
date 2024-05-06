@@ -22,15 +22,19 @@ template <typename... Ts>
 visitor(Ts...) -> visitor<Ts...>;
 
 TEST_CASE("Attr Wise", "[.]")
-{
+{   
+    //读取Graph以及节点资本分数
     Aditum::AditumGraphBuilder builder;
     builder = builder.setGraphPath("/home/antonio/Garbage/InstagramLCC/graph_lt.inf")
                   .setScoresPath("/home/antonio/Garbage/InstagramLCC/lurker_score.txt");
-
+    Aditum::AditumGraph g(builder.build());
+    
+    //读取用户属性
     Aditum::UserAttributesFileReader a("\\s+");
     std::string path = "/home/antonio/Garbage/InstagramLCC/graph_lt_exponential_10_user_attributes.txt";
     std::vector<std::vector<std::variant<int, std::string>>> data{a.read(path)};
-    Aditum::AditumGraph g(builder.build());
+    
+    //构造Aditum，设置所需参数以及扩散模型
     Aditum::AditumBuilder<Aditum::AttributeWiseBuilder> algoBuilder;
     algoBuilder.setGraph(g)
         .setAlpha(0.2)
@@ -38,16 +42,11 @@ TEST_CASE("Attr Wise", "[.]")
         .setK(50)
         .setTargetThreshold(0.42)
         .setAttributes(data);
-
-    using SetGenerator = Aditum::LTRandomRRSetGenerator;
-    using DiversityAware = Aditum::AttributeWise<SetGenerator>;
-
     auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator,
                                   Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>();
+    //选择种子节点并返回结果
     algo->run();
-
     auto seeds = algo->getSeeds();
-
     for (auto x : seeds)
         std::cout << x << "\n";
 }
