@@ -45,7 +45,7 @@ namespace Aditum
         AditumGraph aGraph;
         std::swap(aGraph.capitalScores, nodeScores);
         aGraph.influenceGraph = std::move(g); // std::move()的功能是将一个左值强制转换为右值引用
-
+        
         return aGraph;
     }
 

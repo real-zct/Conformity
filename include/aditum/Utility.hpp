@@ -37,7 +37,7 @@ namespace Aditum
 		 */
 		template <typename T>
 		T *alignedMemory(unsigned int atLeastSize, int *alignedSize)
-		{
+		{//函数计算将要分配的内存大小，使其成为大于等于输入大小的最接近的16的倍数
 			// find the closest multiple of 16
 			auto closestMultiple16 = [](unsigned int n) -> int
 			{
@@ -53,7 +53,7 @@ namespace Aditum
 			*alignedSize = closestMultiple16(atLeastSize);
 
 			auto atLeastSizeBytes = typeSize * *alignedSize;
-			T *alignedPointer = (T *)memalign(16, atLeastSizeBytes);
+			T *alignedPointer = (T *)memalign(16, atLeastSizeBytes);//调用 memalign 分配内存，并返回对齐的指针
 			return alignedPointer;
 		}
 

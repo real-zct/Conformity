@@ -23,9 +23,9 @@ namespace Aditum
 	public:
 		using Base = AditumAttributeDriven<SetGenerator, AttributeWise<SetGenerator>>;
 
-		AttributeWise(AditumGraph &graph, Distribution dist,
+		AttributeWise(AditumGraph &graph, Distribution dist,Distribution nodeCAndDDistribution,
 					  std::vector<std::vector<symbol>> userAttributes,
-					  int k, double lambda = 1, double alpha = 1, double epsilon = 1, double l = 1) : Base(graph, dist, userAttributes, k, alpha, epsilon, l), lam{lambda}
+					  int k, double lambda = 1, double alpha = 1, double epsilon = 1, double l = 1) : Base(graph, dist, nodeCAndDDistribution,userAttributes, k, alpha, epsilon, l), lam{lambda}
 		{
 		}
 
@@ -86,14 +86,17 @@ namespace Aditum
 		template <typename SetGenerator, typename DiversityAwareAlgo>
 		AditumBase<SetGenerator, DiversityAwareAlgo> *build(){
 			Distribution nodeDistribution = computeDistribution();
+			Distribution nodeCAndDDistribution = computeCAndDDistribution();
 			return new AttributeWise<SetGenerator>(*aGraph,
 												   nodeDistribution,
+												   nodeCAndDDistribution,
 												   userAttributes,
 												   k,
 												   lambda,
 												   alpha,
 												   epsilon,
 												   l);
+			
 		}
 	};
 }

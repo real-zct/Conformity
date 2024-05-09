@@ -38,7 +38,7 @@ namespace Aditum
         /*!< vector containing the pointwise（单个节点的） probabilities */
         std::vector<SampleObject> discreteProbs;
 
-        /*!< vector containing the cumulative distribution */
+        /*!< vector containing the cumulative distribution，这里的；累积概率主要是资本分数累积概率 */
         std::vector<double> cumulativeProbs;
 
         /*!<  max value of the cumulative distribution*/
@@ -46,6 +46,15 @@ namespace Aditum
 
         /*!< random number generator */
         sfmt_t gen;
+        
+        // 记录每个点出边个数和资本分数的乘积
+        std::vector<SampleObject> cAndODiscreteProbs;
+
+        // 记录每个点出边个数和资本分数的乘积的累加值
+        std::vector<double> cAndOCumulativeProbs;
+
+        /*出边个数和资本分数的乘积的累加最大值*/
+        double cAndOMaxValue;
 
     public:
         /**
@@ -82,6 +91,25 @@ namespace Aditum
          *  @param size, number of sampels to be drawn
          *  @return points samples from the distribution
          */
+        Distribution(std::vector<double> cAndDScore,int flag);
+        /**
+         *  @brief Constructor
+         *
+         *  该构造器用来计算结点的资本分数与节点出度的乘积，用来后续选结点选择概率中。
+         *
+         *  @param cAndDScore
+         *  @param flag 表示当前是结点cAndDScore的计算
+         * 
+         */
+        Distribution(std::vector<double> cAndDScore, unsigned int seed,int flag);
+
+        /**
+         *  @brief 该构造器用来计算结点的资本分数与节点出度的乘积，用来后续选结点选择概率中。
+         *  @param cAndDScore
+         *  @param flag 表示当前是结点cAndDScore的计算
+         *
+         *  @return 得到结点的资本分数与节点出度的乘积的数组
+         */
         std::vector<uint32_t> sample(unsigned int size);
 
         /**
@@ -90,6 +118,11 @@ namespace Aditum
          *  It draws a sampl from the cumulative distribution.
          *
          *  @return a point sample from the distribution
+         */
+        std::vector<uint32_t> sample(unsigned int size,int flag);
+
+        /**
+         *  @brief 根据结点资本分数与出度乘积来进行源节点采样
          */
         uint32_t sample();
 

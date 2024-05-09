@@ -27,9 +27,9 @@ namespace Aditum
 
 	public:
 		/*!< constructor */
-		AditumAttributeDriven(AditumGraph &graph, Distribution dist,
+		AditumAttributeDriven(AditumGraph &graph, Distribution dist,Distribution nodeCAndDDistribution,
 							  std::vector<std::vector<symbol>> userAttributes,
-							  int k, double alpha = 1, double epsilon = 1, double l = 1) : AditumBase<SetGenerator, DiversityAwareAlgo>(graph, dist, k, alpha, epsilon, l), userAttributes{userAttributes}
+							  int k, double alpha = 1, double epsilon = 1, double l = 1) : AditumBase<SetGenerator, DiversityAwareAlgo>(graph, dist,nodeCAndDDistribution, k, alpha, epsilon, l), userAttributes{userAttributes}
 		{
 			numberOfAttributes = (userAttributes.begin())->size();
 		}

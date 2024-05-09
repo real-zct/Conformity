@@ -40,6 +40,9 @@ namespace Aditum
 		/*!< the capital-aware node distribution */
 		Distribution nodeDistribution;
 
+
+		//与节点的出度和资本值之积相关的分布
+		Distribution nodeCAndDDistribution;
 		/*!< if false the seeds selection does not need to account for the diversity */
 		bool diversityAware = false;
 
@@ -88,11 +91,19 @@ namespace Aditum
 		 *
 		 * @return     return type
 		 */
-		AditumBase(AditumGraph &graph, Distribution dist, int k,
+		// AditumBase(AditumGraph &graph, Distribution dist, int k,
+		// 		   double alpha = 1, double epsilon = 1, double l = 1)
+		// 	: nodeSetIndexes{std::vector<absl::flat_hash_set<int>>(aGraph.graph().upperNodeIdBound())},
+		// 	  nodesAchievedCapital{std::vector<double>(aGraph.graph().upperNodeIdBound())},
+		// 	  nodeDistribution{dist},
+		// 	  alpha{alpha},
+		// 	  aGraph{graph}, k{k}, epsilon{epsilon}, l{l} {}
+		AditumBase(AditumGraph &graph, Distribution dist, Distribution cAndDDistribution,int k,
 				   double alpha = 1, double epsilon = 1, double l = 1)
 			: nodeSetIndexes{std::vector<absl::flat_hash_set<int>>(aGraph.graph().upperNodeIdBound())},
 			  nodesAchievedCapital{std::vector<double>(aGraph.graph().upperNodeIdBound())},
 			  nodeDistribution{dist},
+			  nodeCAndDDistribution{cAndDDistribution},
 			  alpha{alpha},
 			  aGraph{graph}, k{k}, epsilon{epsilon}, l{l} {}
 
@@ -158,7 +169,7 @@ namespace Aditum
 			//  reset all data structures
 			reset();
 
-			auto roots = nodeDistribution.sample(theta); // 选择theta个源节点
+			auto roots = nodeDistribution.sample(theta,1); // 根据结点资本分数与出度乘积来进行源节点采样,选择theta个源节点
 			// expand the vector for storing the rrsets
 			int offset = 0;
 			rrsets.resize(roots.size());
