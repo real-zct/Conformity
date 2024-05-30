@@ -40,9 +40,6 @@ namespace Aditum
 		/*!< the capital-aware node distribution */
 		Distribution nodeDistribution;
 
-
-		//与节点的出度和资本值之积相关的分布
-		Distribution nodeCAndDDistribution;
 		/*!< if false the seeds selection does not need to account for the diversity */
 		bool diversityAware = false;
 
@@ -76,6 +73,14 @@ namespace Aditum
 		/*!< scores associated with each node */
 		std::vector<double> nodesAchievedCapital;
 
+		//记录结点的一致性分数
+		std::vector<double> nodesAchievedConformity;
+
+		//记录结点在RR集中与源节点的一致性分数，一维数表示node id,二维表示root id，存储两结点相似度
+		std::vector<std::vector<double>> nodeRootSim;
+
+
+
 		/**
 		 * @brief      Constructor
 		 *
@@ -98,12 +103,12 @@ namespace Aditum
 		// 	  nodeDistribution{dist},
 		// 	  alpha{alpha},
 		// 	  aGraph{graph}, k{k}, epsilon{epsilon}, l{l} {}
-		AditumBase(AditumGraph &graph, Distribution dist, Distribution cAndDDistribution,int k,
+		AditumBase(AditumGraph &graph, Distribution dist, int k,
 				   double alpha = 1, double epsilon = 1, double l = 1)
 			: nodeSetIndexes{std::vector<absl::flat_hash_set<int>>(aGraph.graph().upperNodeIdBound())},
 			  nodesAchievedCapital{std::vector<double>(aGraph.graph().upperNodeIdBound())},
+			  nodesAchievedConformity{std::vector<double>(aGraph.graph().upperNodeIdBound())},
 			  nodeDistribution{dist},
-			  nodeCAndDDistribution{cAndDDistribution},
 			  alpha{alpha},
 			  aGraph{graph}, k{k}, epsilon{epsilon}, l{l} {}
 
@@ -121,7 +126,7 @@ namespace Aditum
 		 * @details    It exectutes the entire aditum algorithm
 		 *
 		 */
-		void run()
+  		void run()
 		{
 
 			// function to compute the algorithm of the binomial coefficient (n k)
@@ -151,7 +156,12 @@ namespace Aditum
 			diversityAware = alpha < 1; // diversityAware为布尔值，用来判定当前是否要加入多样性考量
 			// Utility::ScoreObject::setAlpha(this->alpha);
 			Utility::ScoreObject::alpha = this->alpha;
-			nodeSelection(theta);
+			if(diversityAware){
+				nodeSelectionWithConformity(theta);
+			}else{
+				nodeSelection(theta);
+			}
+			
 			hasRun = true;
 		}
 
@@ -177,21 +187,60 @@ namespace Aditum
 
 			for (auto root : roots)
 			{ // 有一次循环就生成一个RR集合
-				setRoot[offset] = root;
+				setRoot[offset] = root;//root是结点id，offset可以看作是RR集id，setRoot存储RR集源节点
 				static_cast<RandomRRSetGenerator<SetGenerator> *>(this)->
 				operator()(aGraph.graph(),
 						   root,
 						   [&](node src, node, edgeweight)
 						   {
-							   rrsets[offset].emplace(src);
-							   nodeSetIndexes[src].emplace(offset);
-							   nodesAchievedCapital[src] += aGraph.score(root);
+							   rrsets[offset].emplace(src);//为RR集增加结点
+							   nodeSetIndexes[src].emplace(offset);//给结点标记所属RR集的id
+							   nodesAchievedCapital[src] += aGraph.score(root);//nodesAchievedCapital存储结点覆盖RR集的分数
+							//    nodesAchievedConformity[src] +=();
 						   });
 				++offset;
 			}
 			buildSeedSet();
 		}
+		void nodeSelectionWithConformity(double theta)
+		{
+			// 生成RR集然后计算最终的种子集
+			//  reset all data structures
+			reset();
 
+			auto roots = nodeDistribution.sample(theta,1); // 根据结点资本分数与出度乘积来进行源节点采样,选择theta个源节点
+			// expand the vector for storing the rrsets
+			int offset = 0;
+			rrsets.resize(roots.size());
+			setRoot.resize(roots.size());
+			this->nodeRootSim.resize(aGraph.graph().upperNodeIdBound(), std::vector<double>(roots.size(),-1.0));
+			for (auto root : roots)
+			{ // 有一次循环就生成一个RR集合
+				setRoot[offset] = root;//root是结点id，offset可以看作是RR集id，setRoot存储RR集源节点
+				static_cast<RandomRRSetGenerator<SetGenerator> *>(this)->
+				operator()(aGraph.graph(),
+						   root,
+						   [&](node src, node, edgeweight)
+						   {
+							   	rrsets[offset].emplace(src);//为RR集增加结点
+							   	nodeSetIndexes[src].emplace(offset);//给结点标记所属RR集的id
+							   	nodesAchievedCapital[src] += aGraph.score(root);//nodesAchievedCapital存储结点覆盖RR集的分数
+								this->countSim(src,root);							
+								nodesAchievedConformity[src] +=nodeRootSim[src][root];
+						   });
+				++offset;
+			}
+			buildSeedSetWithConformity();
+		}
+		double countSim(unsigned int node,unsigned int root){
+			if (this->nodeRootSim[node][root]==-1.0) {
+				if(this->nodeRootSim[root][node]!=-1.0){
+					this->nodeRootSim[node][root]=this->nodeRootSim[root][node];
+				}else{
+					this->nodeRootSim[node][root]=static_cast<DiversityAwareAlgo *>(this)->countSim(node,root);
+				}
+        	}
+		}
 		/**
 		 * @brief      It returns the final seed set
 		 *
@@ -221,9 +270,9 @@ namespace Aditum
 		 *
 		 * @return     return type
 		 */
-		void buildSeedSetWithDiversity()
+		void buildSeedSetWithConformity()
 		{
-			static_cast<DiversityAwareAlgo *>(this)->buildSeedSetWithDiversity();
+			static_cast<DiversityAwareAlgo *>(this)->buildSeedSetWithConformity();
 		}
 
 	private:
@@ -249,7 +298,7 @@ namespace Aditum
 				double sum = 0;
 
 				// generate ci different rrset roots
-				auto roots = nodeDistribution.sample(ci);
+				auto roots = nodeDistribution.sample(ci,1);
 
 				// expand the vector for storing the rrsets
 				int offset = 0;
@@ -315,7 +364,7 @@ namespace Aditum
 			// that are covered by the current seedSet
 			int coveredSets = 0;
 			assert(seedSet.size() > 0);
-			auto roots = nodeDistribution.sample(thetaPrime);
+			auto roots = nodeDistribution.sample(thetaPrime,1);
 			for (auto root : roots)
 			{
 				static_cast<RandomRRSetGenerator<SetGenerator> *>(this)->
@@ -365,40 +414,40 @@ namespace Aditum
 		void buildSeedSet()
 		{
 
-			if (diversityAware)
-			{
-				buildSeedSetWithDiversity();
-				return;
-			}
+			// if (diversityAware)
+			// {
+			// 	buildSeedSetWithConformity();
+			// 	return;
+			// }
 
 			std::vector<Utility::ScoreObject> q(nodesAchievedCapital.size());
 // init without diversity
 #pragma omp parallel
 			for (unsigned int i = 0; i < q.size(); ++i)
-				q[i] = Utility::ScoreObject{i, 0, nodesAchievedCapital[i], 0};
+				q[i] = Utility::ScoreObject{i, 0, nodesAchievedCapital[i], 0};//node，iteration，capitalScore，diversityScore
 
-			std::make_heap(q.begin(), q.end());//将向量 q 转换为一个最大堆。
+			std::make_heap(q.begin(), q.end());//将向量 q 转换为一个最大堆，堆顶元素是范围内的最大值
 
 			seedSet.clear();
 			while (seedSet.size() < k)
 			{
-				std::pop_heap(q.begin(), q.end()); // move the largest to end
-				Utility::ScoreObject &item = q.back();
+				std::pop_heap(q.begin(), q.end()); //pop_heap用于将堆顶元素移动到堆的末尾，并重新调整剩余的元素，使其仍然满足堆的性质
+				Utility::ScoreObject &item = q.back();//back用于访问向量（vector）中的最后一个元素,item为分数最大的点的ScoreObject对象。
 				if (item.iteration == seedSet.size())
-				{
+				{//说明当前item的数值为最新值
 					// reduce the score of each node belonging to the same
 					// rrset this node belongs to
-					for (auto setId : nodeSetIndexes[item.node])
+					for (auto setId : nodeSetIndexes[item.node])//setId：item所属RR集id的集合
 						for (auto node : rrsets[setId])
-							nodesAchievedCapital[node] -= aGraph.score(setRoot[setId]);
-					seedSet.emplace(item.node);
+							nodesAchievedCapital[node] -= aGraph.score(setRoot[setId]);//为所有受新种子结点影响的结点更新资本分数
+					seedSet.emplace(item.node);//将item加入到种子集合中去
 					q.pop_back();
 				}
 				else
-				{
+				{//懒惰更新，iteration和seedSet.size()不等说明item不是最新值，需要更新
 					item.capitalScore = nodesAchievedCapital[item.node];
 					item.iteration = seedSet.size();
-					std::push_heap(q.begin(), q.end());
+					std::push_heap(q.begin(), q.end());//维护堆的性质。范围 [begin, end-1) 已经是一个有效的堆。它会将范围内的最后一个元素（即位于 end-1 的元素）插入到堆中合适的位置，从而使整个范围 [begin, end) 变成一个有效的堆。
 				}
 			}
 		}

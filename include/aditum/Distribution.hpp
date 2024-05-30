@@ -68,8 +68,9 @@ namespace Aditum
          *  the probability is greater than 0, otherwise it will be discarded
          *
          *  @param discreteProb
+         *  @param cAndDScore
          */
-        Distribution(std::vector<double> discreteProbs);
+        Distribution(std::vector<double> discreteProbs,std::vector<double> cAndDScore);
 
         /**
          *  @brief Constructor
@@ -80,7 +81,7 @@ namespace Aditum
          *  @param discreteProb
          *  @param seed
          */
-        Distribution(std::vector<double> discreteProbs, unsigned int seed);
+        Distribution(std::vector<double> discreteProbs, std::vector<double> cAndDScore,unsigned int seed);
 
         /**
          *  @brief Sample from the distribution
@@ -91,25 +92,25 @@ namespace Aditum
          *  @param size, number of sampels to be drawn
          *  @return points samples from the distribution
          */
-        Distribution(std::vector<double> cAndDScore,int flag);
-        /**
-         *  @brief Constructor
-         *
-         *  该构造器用来计算结点的资本分数与节点出度的乘积，用来后续选结点选择概率中。
-         *
-         *  @param cAndDScore
-         *  @param flag 表示当前是结点cAndDScore的计算
-         * 
-         */
-        Distribution(std::vector<double> cAndDScore, unsigned int seed,int flag);
+        // Distribution(std::vector<double> cAndDScore,int flag);
+        // /**
+        //  *  @brief Constructor
+        //  *
+        //  *  该构造器用来计算结点的资本分数与节点出度的乘积，用来后续选结点选择概率中。
+        //  *
+        //  *  @param cAndDScore
+        //  *  @param flag 表示当前是结点cAndDScore的计算
+        //  * 
+        //  */
+        // Distribution(std::vector<double> cAndDScore, unsigned int seed,int flag);
 
-        /**
-         *  @brief 该构造器用来计算结点的资本分数与节点出度的乘积，用来后续选结点选择概率中。
-         *  @param cAndDScore
-         *  @param flag 表示当前是结点cAndDScore的计算
-         *
-         *  @return 得到结点的资本分数与节点出度的乘积的数组
-         */
+        // /**
+        //  *  @brief 该构造器用来计算结点的资本分数与节点出度的乘积，用来后续选结点选择概率中。
+        //  *  @param cAndDScore
+        //  *  @param flag 表示当前是结点cAndDScore的计算
+        //  *
+        //  *  @return 得到结点的资本分数与节点出度的乘积的数组
+        //  */
         std::vector<uint32_t> sample(unsigned int size);
 
         /**

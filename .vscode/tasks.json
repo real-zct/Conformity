@@ -1,0 +1,29 @@
+{
+    "tasks": [
+        {
+            "label": "cmake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "../"
+            ],
+            "options": {
+                "cwd": "/home/zct/laboratory/project/aditum/build"
+            },            
+        },
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "make",
+            "args": [],
+            "options": {
+                "cwd": "/home/zct/laboratory/project/aditum/build"
+            }, 
+        },
+        {
+            "label": "build",
+            "dependsOn":["cmake", "make"]
+        }
+    ],
+    "version": "2.0.0"
+}

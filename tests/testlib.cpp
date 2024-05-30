@@ -110,7 +110,8 @@ TEST_CASE("aditum graph", "[.]")
 TEST_CASE("distribution single", "[.]")
 {
     std::vector<double> p = {1,1,1,1,1};
-    Aditum::Distribution dist(p, 0);
+    std::vector<double> p1 = {1,1,1,1,1};
+    Aditum::Distribution dist(p ,p1, 0);
     std::unordered_map<int, int> map;
     for(int i=0 ; i<100 ; i++){
 	map[dist.sample()]++;

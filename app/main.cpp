@@ -9,8 +9,8 @@
 #include <aditum/AttributeWise.hpp>
 #include <aditum/AditumBuilder.hpp>
 #include <aditum/io/UserAttributesFileReader.hpp>
-#include <aditum/ClassBased.hpp>
-#include <aditum/EntropyBased.hpp>
+// #include <aditum/ClassBased.hpp>
+// #include <aditum/EntropyBased.hpp>
 #include <iostream>
 
 namespace po = boost::program_options;
@@ -166,16 +166,16 @@ void setRemaining(Aditum::AttributeWiseBuilder &instance, double lambda)
 	instance.setLambda(lambda);
 }
 
-template <>
-void setRemaining(Aditum::ClassBasedBuilder &instance, std::vector<double> &userRewards)
-{
-	instance.setRewards(userRewards);
-}
+// template <>
+// void setRemaining(Aditum::ClassBasedBuilder &instance, std::vector<double> &userRewards)
+// {
+// 	instance.setRewards(userRewards);
+// }
 
-template <>
-void setRemaining(Aditum::EntropyBasedBuilder &instance)
-{
-}
+// template <>
+// void setRemaining(Aditum::EntropyBasedBuilder &instance)
+// {
+// }
 
 /**
  * Main Function
@@ -210,21 +210,22 @@ int main(int argc, char const *argv[])
 		po::options_description attrWiseArgs("AttributeWise Arguments");
 		attrWiseArgs.add_options()("lambda, lam", po::value<double>()->default_value(1.0), "\u03BB");
 
-		// class based diversity arguments
-		po::options_description classBasedArgs("ClassBased Arguments");
-		classBasedArgs.add_options()("rewardsFile, r",
-									 po::value<std::string>()->default_value(""),
-									 "File containing the rewards associated to each node in the graph.\n"
-									 "Leaving this option empty means that every user has the same reward value");
+		// // class based diversity arguments
+		// po::options_description classBasedArgs("ClassBased Arguments");
+		// classBasedArgs.add_options()("rewardsFile, r",
+		// 							 po::value<std::string>()->default_value(""),
+		// 							 "File containing the rewards associated to each node in the graph.\n"
+		// 							 "Leaving this option empty means that every user has the same reward value");
 
-		// hamming based diversity arguments
-		po::options_description hammingBased("Hamming Arguments");
-		hammingBased.add_options()("radius, r", po::value<std::string>()->default_value(""), "\u03BE")("reach", po::value<int>()->default_value(0), "Influence Reach Strategy.\n"
-																																					"Options:\n"
-																																					"    [0] - RRSet,  based on the computed RRSets\n"
-																																					"    [1] - Reach, based on the graph topology\n");
+		// // hamming based diversity arguments
+		// po::options_description hammingBased("Hamming Arguments");
+		// hammingBased.add_options()("radius, r", po::value<std::string>()->default_value(""), "\u03BE")("reach", po::value<int>()->default_value(0), "Influence Reach Strategy.\n"
+		// "Options:\n"
+		// "    [0] - RRSet,  based on the computed RRSets\n"
+		// "    [1] - Reach, based on the graph topology\n");
 
-		desc.add(commonArgs).add(attrArgs).add(attrWiseArgs).add(classBasedArgs).add(hammingBased);
+		// desc.add(commonArgs).add(attrArgs).add(attrWiseArgs).add(classBasedArgs).add(hammingBased);
+		desc.add(commonArgs).add(attrArgs).add(attrWiseArgs);
 
 		// read command line arguments
 		po::variables_map vm;
@@ -284,35 +285,35 @@ int main(int argc, char const *argv[])
 																  double{vm["lambda"].as<double>()});
 			break;
 
-		case algorithm::code::clas: // Class Based Algorithm
-		{
-			std::string rewardsFile = vm["rewards"].as<std::string>();
-			std::vector<double> userRewards;
-			if (rewardsFile.empty())
-				userRewards.assign(g.graph().upperNodeIdBound(), 1);
+			// case algorithm::code::clas: // Class Based Algorithm
+			// {
+			// 	std::string rewardsFile = vm["rewards"].as<std::string>();
+			// 	std::vector<double> userRewards;
+			// 	if (rewardsFile.empty())
+			// 		userRewards.assign(g.graph().upperNodeIdBound(), 1);
 
-			if (diffusionModel == "ic")
-				seeds = run<Aditum::ClassBased, Aditum::ICRandomRRSetGenerator,
-							Aditum::ClassBasedBuilder, std::vector<double> &>(g, k, alpha, epsilon, accuracy,
-																			  targetThreshold, userAttributes, std::ref(userRewards));
-			else
-				seeds = run<Aditum::ClassBased, Aditum::LTRandomRRSetGenerator,
-							Aditum::ClassBasedBuilder, std::vector<double> &>(g, k, alpha, epsilon, accuracy,
-																			  targetThreshold, userAttributes, std::ref(userRewards));
-			break;
-		}
+			// 	if (diffusionModel == "ic")
+			// 		seeds = run<Aditum::ClassBased, Aditum::ICRandomRRSetGenerator,
+			// 					Aditum::ClassBasedBuilder, std::vector<double> &>(g, k, alpha, epsilon, accuracy,
+			// 																	  targetThreshold, userAttributes, std::ref(userRewards));
+			// 	else
+			// 		seeds = run<Aditum::ClassBased, Aditum::LTRandomRRSetGenerator,
+			// 					Aditum::ClassBasedBuilder, std::vector<double> &>(g, k, alpha, epsilon, accuracy,
+			// 																	  targetThreshold, userAttributes, std::ref(userRewards));
+			// 	break;
+			// }
 
-		case algorithm::code::entropy: // Entropy Based Algorithm
-			if (diffusionModel == "ic")
-				seeds = run<Aditum::EntropyBased, Aditum::ICRandomRRSetGenerator,
-							Aditum::EntropyBasedBuilder>(g, k, alpha, epsilon, accuracy, targetThreshold, userAttributes);
-			else
-				seeds = run<Aditum::EntropyBased, Aditum::LTRandomRRSetGenerator,
-							Aditum::EntropyBasedBuilder>(g, k, alpha, epsilon, accuracy, targetThreshold, userAttributes);
-			break;
+			// case algorithm::code::entropy: // Entropy Based Algorithm
+			// 	if (diffusionModel == "ic")
+			// 		seeds = run<Aditum::EntropyBased, Aditum::ICRandomRRSetGenerator,
+			// 					Aditum::EntropyBasedBuilder>(g, k, alpha, epsilon, accuracy, targetThreshold, userAttributes);
+			// 	else
+			// 		seeds = run<Aditum::EntropyBased, Aditum::LTRandomRRSetGenerator,
+			// 					Aditum::EntropyBasedBuilder>(g, k, alpha, epsilon, accuracy, targetThreshold, userAttributes);
+			// 	break;
 
-		case algorithm::code::hamming:
-			throw std::runtime_error("not implemented yet");
+			// case algorithm::code::hamming:
+			// 	throw std::runtime_error("not implemented yet");
 		}
 
 		// store the seeds file into the file provided as input

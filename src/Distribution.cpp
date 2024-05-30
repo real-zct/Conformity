@@ -8,12 +8,12 @@ namespace Aditum
 
 	Distribution::SampleObject::SampleObject(uint32_t i, double p) : id{i}, probs{p} {}
 
-	Distribution::Distribution(std::vector<double> discreteP, unsigned int seed)
+	Distribution::Distribution(std::vector<double> discreteP,std::vector<double> cAndDScore, unsigned int seed)
 	{
 		// init the random number generator
 		sfmt_init_gen_rand(&gen, seed);
 		double cumProb = 0;
-
+		double cAndDCumProb = 0;
 		for (uint32_t i = 0; i < discreteP.size(); ++i)
 		{
 			if (double prob = discreteP[i];
@@ -24,32 +24,41 @@ namespace Aditum
 				cumProb += prob;
 				cumulativeProbs.emplace_back(cumProb);//将累计概率存储在cumulativeProbs中
 			}
-		}
-		maxValue = cumProb;
-	}
-	Distribution::Distribution(std::vector<double> cAndDScore, unsigned int seed,int flag)
-	{
-		// init the random number generator
-		sfmt_init_gen_rand(&gen, seed);
-		double cumProb = 0;
-
-		for (uint32_t i = 0; i < cAndDScore.size(); ++i)
-		{
 			if (double prob = cAndDScore[i];
 				prob > 0)
 			{
 				// create an new entry into the SampleObject vector
 				cAndODiscreteProbs.emplace_back(i, prob);//将节点编号和资本分数出度乘积的概率放在discreteProbs中
-				cumProb += prob;
-				cAndOCumulativeProbs.emplace_back(cumProb);//将累计概率存储在cumulativeProbs中
+				cAndDCumProb += prob;
+				cAndOCumulativeProbs.emplace_back(cAndDCumProb);//将累计概率存储在cumulativeProbs中
 			}
 		}
-		cAndOMaxValue = cumProb;
+		maxValue = cumProb;
+		cAndOMaxValue = cAndDCumProb;
 	}
+	// Distribution::Distribution(std::vector<double> cAndDScore, unsigned int seed,int flag)
+	// {
+	// 	// init the random number generator
+	// 	sfmt_init_gen_rand(&gen, seed);
+	// 	double cAndDCumProb = 0;
 
-	Distribution::Distribution(std::vector<double> discreteProbs) : Distribution(discreteProbs, Utility::now()) {}
+	// 	for (uint32_t i = 0; i < cAndDScore.size(); ++i)
+	// 	{
+	// 		if (double prob = cAndDScore[i];
+	// 			prob > 0)
+	// 		{
+	// 			// create an new entry into the SampleObject vector
+	// 			cAndODiscreteProbs.emplace_back(i, prob);//将节点编号和资本分数出度乘积的概率放在discreteProbs中
+	// 			cAndDCumProb += prob;
+	// 			cAndOCumulativeProbs.emplace_back(cAndDCumProb);//将累计概率存储在cumulativeProbs中
+	// 		}
+	// 	}
+	// 	cAndOMaxValue = cAndDCumProb;
+	// }
+
+	Distribution::Distribution(std::vector<double> discreteProbs,std::vector<double> cAndDScore) : Distribution(discreteProbs, cAndDScore,Utility::now()) {}
 	
-	Distribution::Distribution(std::vector<double> cAndDScore,int flag) : Distribution(cAndDScore, Utility::now(), flag) {}
+	// Distribution::Distribution(std::vector<double> cAndDScore,int flag) : Distribution(cAndDScore, Utility::now(), flag) {}
 
 	std::vector<uint32_t> Distribution::sample(unsigned int size)
 	{//返回随机选中的源节点id

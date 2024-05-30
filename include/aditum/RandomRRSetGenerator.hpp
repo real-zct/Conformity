@@ -115,7 +115,7 @@ namespace Aditum
 		operator()(const Graph & g, node root, F f, C stopCondition)
 		{//生成一个RR集并返回
 			std::stack<node> s;
-			absl::flat_hash_set<node> visited = {root};
+			absl::flat_hash_set<node> visited = {root};//visited用来存储已经访问到的点
 			s.push(root);
 			do
 			{
@@ -128,12 +128,12 @@ namespace Aditum
 
 				double random = sfmt_genrand_real1(&gen);//生成一个 [0, 1) 范围内的随机浮点数，并将其赋值给变量 random
 				g.forInEdgesOf(v, [&](node, node src, edgeweight weight)
-				{
+				{//每做一次forInEdgesOf方法，就是从结点v反向遍历一步
 		    		//if random < 0 v has already been activated by one of
 		    		//its in-neighbor in a previous iteration 
 		    		if (random<0)
 						return;
-		    		random -= weight;
+		    		random -= weight;//随机选中一个入边来反向遍历
 		    			//src is the one to activate v
 		    		if(random<0 && !visited.contains(src)){
 						f(src, v, weight);

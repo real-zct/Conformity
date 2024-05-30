@@ -6,7 +6,7 @@ project(aditum
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+SET(CMAKE_BUILD_TYPE Debug)
 #if(MSVC)
 #  add_compile_options(/W3 /WX)
 #else()

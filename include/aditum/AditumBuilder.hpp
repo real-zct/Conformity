@@ -147,32 +147,38 @@ namespace Aditum
         {
             // create the distribution
             std::vector<double> scoreVector(aGraph->scores().size());
-
-#pragma omp parallel
-            // #pragma omp parallel 是一种用于并行编程的指令，用于在 OpenMP（Open Multi-Processing）
-            // 环境中创建并行执行的代码段。这个指令告诉编译器，以下代码块应该并行执行。在执行时，该代码块中的工作将被分配给多个线程，并行地执行。
-            for (unsigned int i = 0; i < scoreVector.size(); i++)
-                if (double iScore = aGraph->score(i); // 只保留节点资本分数大于targetThreshold的结点
-                    iScore >= targetThreshold)
-                    scoreVector[i] = iScore;
-
-            Distribution nodeDistribution(scoreVector);
-            return nodeDistribution;
-        }
-        Distribution computeCAndDDistribution()
-        {
-            // create the distribution
             std::vector<double> cAndDScoreVector(aGraph->scores().size());
 
 #pragma omp parallel
             // #pragma omp parallel 是一种用于并行编程的指令，用于在 OpenMP（Open Multi-Processing）
             // 环境中创建并行执行的代码段。这个指令告诉编译器，以下代码块应该并行执行。在执行时，该代码块中的工作将被分配给多个线程，并行地执行。
-            for (unsigned int i = 0; i < cAndDScoreVector.size(); i++)
-                    cAndDScoreVector[i] = (aGraph->score(i))*(aGraph->graph.degreeOut(i));
-
-            Distribution nodeDistribution(cAndDScoreVector,1);
+            for (unsigned int i = 0; i < scoreVector.size(); i++){
+                if (double iScore = aGraph->score(i); iScore >= targetThreshold){// 只保留节点资本分数大于targetThreshold的结点
+                        scoreVector[i] = iScore;
+                        cAndDScoreVector[i] = (aGraph->score(i))*(aGraph->graph().degreeIn(i)+1);
+                }
+                    
+            }
+            Distribution nodeDistribution(scoreVector,cAndDScoreVector);
             return nodeDistribution;
         }
+//         Distribution computeCAndDDistribution()
+//         {
+//             // create the distribution
+//             std::vector<double> cAndDScoreVector(aGraph->scores().size());
+
+// #pragma omp parallel
+//             // #pragma omp parallel 是一种用于并行编程的指令，用于在 OpenMP（Open Multi-Processing）
+//             // 环境中创建并行执行的代码段。这个指令告诉编译器，以下代码块应该并行执行。在执行时，该代码块中的工作将被分配给多个线程，并行地执行。
+//             for (unsigned int i = 0; i < cAndDScoreVector.size(); i++){
+//                 double iScore = aGraph->score(i);
+//                 if (iScore >= targetThreshold){// 只保留资本分数大于targetThreshold的结点，并计算结点资本分数*入度的乘积
+//                         cAndDScoreVector[i] = (aGraph->score(i))*(aGraph->graph().degreeIn(i));
+//                 }
+//             }
+//             Distribution nodeDistribution(cAndDScoreVector,1);
+//             return nodeDistribution;
+//         }
     };
 
 };
