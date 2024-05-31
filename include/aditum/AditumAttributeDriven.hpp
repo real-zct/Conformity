@@ -63,6 +63,21 @@ namespace Aditum
 			return maxConformity;
 		}
 
+// 		std::vector<Utility::ScoreObject> getInitialScoreVector(double maxCapital,double maxDiversity)
+// 		{
+// 			// initialize the score vector
+// 			// and set the correct weighting factor for the ScoreObject class
+// 			std::vector<Utility::ScoreObject> q(this->nodesAchievedCapital.size());
+
+// #pragma omp parallel
+// 			for (unsigned int i = 0; i < q.size(); ++i)
+// 				q[i] = Utility::ScoreObject{i, 0, this->nodesAchievedCapital[i], 0};//node，iteration，capitalScore，diversityScore
+
+// 			// sort q
+// 			std::make_heap(q.begin(), q.end());
+
+// 			return q;
+// 		}
 		//初始化一个包含 Utility::ScoreObject 对象的向量，并将其转换为一个最大堆并返回。
 		std::vector<Utility::ScoreObject> getInitialScoreVector()
 		{
@@ -85,7 +100,7 @@ namespace Aditum
 		{//insertCallback为一个传入函数，insertCallback(i)即更新结点id为i的属性计数
 		//updateDiversity为一个传入函数，updateDiversity(i)即计算结点id为i的边际增益并返回
 			this->seedSet.clear();
-
+			std::vector<int> rrsetsVisited(this->rrsets.size(),0);
 			while (this->seedSet.size() < this->k)
 			{
 				std::pop_heap(q.begin(), q.end());
@@ -93,24 +108,30 @@ namespace Aditum
 
 				if (item.iteration == this->seedSet.size())
 				{
-					for (auto setId : this->nodeSetIndexes[item.node])
-						for (auto node : this->rrsets[setId]){
-							this->nodesAchievedCapital[node] -= this->aGraph.score(this->setRoot[setId]) / maxCapital;
-							this->nodesAchievedConformity[node] -= this->nodeRootSim[node][this->setRoot[setId]]/ maxConformity;
+					for (auto setId : this->nodeSetIndexes[item.node]){
+						if(rrsetsVisited[setId]==0){
+							for (auto node : this->rrsets[setId]){	
+								this->nodesAchievedCapital[node] -= this->aGraph.score(this->setRoot[setId]) / maxCapital;
+								this->nodesAchievedConformity[node] -= this->nodeRootSim[node][this->setRoot[setId]]/ maxConformity;
+							}
+							rrsetsVisited[setId]=1;
 						}
+					}
 					this->seedSet.emplace(item.node);
 					q.pop_back();
+					//这里被计算过的RR集合应该不能被二次计算，应当从所有RR集中去除。
+					//这里将包含当前新种子集合的RR集去除掉，
 				}
 				else
 				{
 					item.capitalScore = this->nodesAchievedCapital[item.node];
-					item.diversityScore = this->nodesAchievedConformity[item.node];//归一化
+					item.diversityScore = this->nodesAchievedConformity[item.node];
 					item.iteration = this->seedSet.size();
 					std::push_heap(q.begin(), q.end());
 				}
 			}
 		}
-		// //通过结合资本分数和多样性分数，从候选节点中选择一组种子节点。
+		//通过结合资本分数和多样性分数，从候选节点中选择一组种子节点。
 		// template <typename InsertCallback, typename UpdateCallback>
 		// std::enable_if_t<
 		// 	Utility::function_traits<InsertCallback>::arity == 1 &&

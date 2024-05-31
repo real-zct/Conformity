@@ -19,7 +19,7 @@ namespace Aditum
 		double lam;
 
 		using symbol = typename AditumAttributeDriven<SetGenerator, AttributeWise<SetGenerator>>::symbol;
-
+		//symbol是std::variant<int, std::string>变体
 	public:
 		using Base = AditumAttributeDriven<SetGenerator, AttributeWise<SetGenerator>>;
 
@@ -96,6 +96,7 @@ namespace Aditum
 		// 	auto updateCoveredSymbols = [&](unsigned int node)
 		// 	{
 		// 		// update the of covered symbols
+		// 		//对于每个属性符号，在 coveredAttributes 向量中的对应映射中增加计数。i是对应属性序号，*itSymbol 解引用迭代器以获取当前的 symbol（属性值，int或者String）。这个 symbol 的计数在 absl::flat_hash_map 中加1。
 		// 		auto &attributes = this->userAttributes[node];
 		// 		auto itSymbol = attributes.begin();
 		// 		for (unsigned int i = 0; itSymbol != attributes.end(); ++i, ++itSymbol)
@@ -127,7 +128,7 @@ namespace Aditum
 		// 	double maxDiversity = (this->userAttributes.begin())->size();//maxDiversity为用户属性集合中符号的最大数量
 
 		// 	// initialize the score vector
-		// 	auto q = this->getInitialScoreVector(maxCapital, maxDiversity);
+		// 	auto q = this->getInitialScoreVector();
 		// 	this->selectionLoop(q, updateCoveredSymbols, computeMarginalDiversity, maxCapital, maxDiversity);//通过结合资本分数和多样性分数，从候选节点中选择一组种子节点。
 		// }
 	};

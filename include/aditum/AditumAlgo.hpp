@@ -67,6 +67,8 @@ namespace Aditum
 		/*!< rrsets[i] returns the set of nodes belonging to the i-th RRSET*/
 		std::vector<absl::flat_hash_set<node>> rrsets;
 
+		
+
 		/*!< nodeSetIndexes[v] returns the ids of every RRSet v is into */
 		std::vector<absl::flat_hash_set<int>> nodeSetIndexes;
 
@@ -231,6 +233,7 @@ namespace Aditum
 				++offset;
 			}
 			buildSeedSetWithConformity();
+			//buildSeedSetWithDiversity();
 		}
 		double countSim(unsigned int node,unsigned int root){
 			if (this->nodeRootSim[node][root]==-1.0) {
@@ -274,6 +277,10 @@ namespace Aditum
 		{
 			static_cast<DiversityAwareAlgo *>(this)->buildSeedSetWithConformity();
 		}
+		// void buildSeedSetWithDiversity()
+		// {
+		// 	static_cast<DiversityAwareAlgo *>(this)->buildSeedSetWithDiversity();
+		// }
 
 	private:
 		/**

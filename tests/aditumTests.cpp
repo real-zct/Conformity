@@ -39,7 +39,7 @@ TEST_CASE("Attr Wise", "[.]")
     algoBuilder.setGraph(g)
         .setAlpha(0.2)
         .setEpsilon(1)
-        .setK(1)
+        .setK(3)
         .setTargetThreshold(0.1)
         .setAttributes(data);
     auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator,
