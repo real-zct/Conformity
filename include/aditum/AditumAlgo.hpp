@@ -434,7 +434,7 @@ namespace Aditum
 				q[i] = Utility::ScoreObject{i, 0, nodesAchievedCapital[i], 0};//node，iteration，capitalScore，diversityScore
 
 			std::make_heap(q.begin(), q.end());//将向量 q 转换为一个最大堆，堆顶元素是范围内的最大值
-
+			std::vector<int> rrsetsVisited(this->rrsets.size(),0);
 			seedSet.clear();
 			while (seedSet.size() < k)
 			{
@@ -444,9 +444,15 @@ namespace Aditum
 				{//说明当前item的数值为最新值
 					// reduce the score of each node belonging to the same
 					// rrset this node belongs to
-					for (auto setId : nodeSetIndexes[item.node])//setId：item所属RR集id的集合
-						for (auto node : rrsets[setId])
-							nodesAchievedCapital[node] -= aGraph.score(setRoot[setId]);//为所有受新种子结点影响的结点更新资本分数
+					for (auto setId : nodeSetIndexes[item.node]){//setId：item所属RR集id的集合
+						if(rrsetsVisited[setId]==0){
+							for (auto node : rrsets[setId]){
+								nodesAchievedCapital[node] -= aGraph.score(setRoot[setId]);//为所有受新种子结点影响的结点更新资本分数
+							}
+							rrsetsVisited[setId]=1;
+						}
+						
+					}
 					seedSet.emplace(item.node);//将item加入到种子集合中去
 					q.pop_back();
 				}

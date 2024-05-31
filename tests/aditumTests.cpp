@@ -41,7 +41,7 @@ TEST_CASE("Attr Wise", "[.]")
         .setEpsilon(1)
         .setK(3)
         .setTargetThreshold(0.1)
-        .setAttributes(data);
+        .setAttributes(data);//alpha为资本值系数
     auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator,
                                   Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>();
     //选择种子节点并返回结果
