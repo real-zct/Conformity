@@ -38,6 +38,7 @@ namespace Aditum
     // NetworKit::GraphReader可以读取不同格式的图形文件，如GraphML、GML、Edge List等，并将它们转换为NetworKit内部表示的图形数据结构，以便进行进一步的分析和处理
     // build用来创建一个AditumGraph以及设置资本分数和影响力图。
     {
+        //想法1：若给定的不是有向图，则边权值设置为两用户相似度。
         auto g = std::make_unique<Graph>(reader.read(this->graphPath)); // make_unique用于在动态内存中创建对象并返回一个指向该对象的唯一指针
         // read的功能是读取特定格式的图形文件，并将其转换为NetworKit的Graph结构
         auto nodeScores = capReader.read(this->scoresPath);

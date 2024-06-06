@@ -49,6 +49,8 @@ TEST_CASE("Attr Wise", "[.]")
     auto seeds = algo->getSeeds();
     for (auto x : seeds)
         std::cout << x << "\n";
+
+    //测试种子的结点分数
 }
 
 // TEST_CASE("Class Based", "[.]")

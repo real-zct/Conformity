@@ -5,11 +5,63 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "g++ - Build and debug active file",
+            "name": "g++ - Build and debug active file-aditumtest",
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/zct/laboratory/project/aditum/build/tests/aditumtest",
             "args": ["[.]"],
+            "stopAtEntry": false,
+            "cwd": "/home/zct/laboratory/project/aditum",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },{
+            "name": "g++ - Build and debug active file-main",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/zct/laboratory/project/aditum/build/app/app",
+            "args": [
+                "-a","wise",
+                "--graph","/home/zct/laboratory/project/data/lastfm/graph_final.csv",
+                "--capital","/home/zct/laboratory/project/data/lastfm/capital_final.csv",
+                "--target-threshold","0.1",
+                "--alpha","0.2",
+                "--output","/home/zct/laboratory/project/data/lastfm/seed.csv",
+                "--diffusion-model","lt",
+                "--k","30",
+                "--attributes","/home/zct/laboratory/project/data/lastfm/attributes.csv"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/zct/laboratory/project/aditum",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },{
+            "name": "g++ - Build and debug active file-help",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/zct/laboratory/project/aditum/build/app/app",
+            "args": [
+                "--help"
+            ],
             "stopAtEntry": false,
             "cwd": "/home/zct/laboratory/project/aditum",
             "environment": [],

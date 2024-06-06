@@ -79,21 +79,20 @@ namespace Aditum
 				if (stopCondition(v))
 					break;
 
-				g.forInEdgesOf(v, [&](node, node src, edgeweight weight)
-							   {
-		    //if src has been already processed then return
-		    if(visited.contains(src))
-			return;
+				g.forInEdgesOf(v, [&](node, node src, edgeweight weight){
+		    		//if src has been already processed then return
+		    		if(visited.contains(src))
+					return;
 			
-		    //check whether or not the edge is live
-		    if(sfmt_genrand_real1(&gen)<=weight)
-			{
-			    // execute the call back over the live edge
-			    f(src, v, weight);
-			    s.push(src);
-			    visited.emplace(src);
-			} });
-
+		    		//check whether or not the edge is live
+		    		if(sfmt_genrand_real1(&gen)<=weight)
+					{
+			    		// execute the call back over the live edge
+			    		f(src, v, weight);
+			    		s.push(src);
+			    		visited.emplace(src);
+					} 
+				});
 			} while (!s.empty());
 		}
 	};

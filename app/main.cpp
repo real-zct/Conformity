@@ -20,6 +20,8 @@ namespace po = boost::program_options;
  */
 struct algorithm
 {
+	std::string name;
+	algorithm(const std::string &n) : name{n} {}
 	enum code
 	{
 		wise = 0,
@@ -27,7 +29,6 @@ struct algorithm
 		entropy,
 		hamming
 	};
-	algorithm(const std::string &n) : name{n} {}
 	code toCode() const
 	{
 		if (name == "wise")
@@ -40,7 +41,7 @@ struct algorithm
 			return code::hamming;
 		throw std::runtime_error("Unknown algorithm");
 	}
-	std::string name;
+	
 };
 
 /**
@@ -229,12 +230,13 @@ int main(int argc, char const *argv[])
 
 		// read command line arguments
 		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv)
-					  .options(desc)
-					  .run(),
-				  vm);
+		po::store(po::command_line_parser(argc, argv).options(desc).run(),vm);
+		//po::command_line_parser 是一个用于解析命令行参数的类。argc和argv，分别表示命令行参数的数量和参数的实际值（通常在 main 函数中传入）。
+		//options 方法将解析器配置为使用 desc 描述的选项。desc 是一个包含所有可用命令行选项描述的对象
+		//run 方法执行命令行参数解析，并返回一个 boost::program_options::parsed_options 对象，该对象包含解析结果。
+		//po::store 函数将解析结果存储到 vm 中，vm 是一个 boost::program_options::variables_map对象，用于保存命令行参数的值。存储过程会将命令行参数映射到相应的变量中，以便后续代码使用。
 		po::notify(vm);
-
+		//notify将解析后的命令行选项值通知给 variables_map 对象中的变量
 		if (vm.count("help"))
 		{
 			std::cout << desc << std::endl;
