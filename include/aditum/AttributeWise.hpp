@@ -34,9 +34,7 @@ namespace Aditum
 			}
 			double simCount=0;
 			for(unsigned int i = 0;i < this->numberOfAttributes;i++){
-				//if (std::holds_alternative<int>(this->userAttributes[node][i]) && std::holds_alternative<int>(this->userAttributes[root][i])) {
-    				simCount+=(std::get<int>(this->userAttributes[node][i]) * std::get<int>(this->userAttributes[root][i]));
-				//}
+    			simCount+=(std::get<int>(this->userAttributes[node][i]) * std::get<int>(this->userAttributes[root][i]));
 				
 			}
 			return simCount/this->numberOfAttributes;
@@ -44,38 +42,6 @@ namespace Aditum
 		}
 		void buildSeedSetWithConformity()
 		{
-			// initialize the map for storing the number of nodes 
-			// having a particular attribute in their profile
-			// std::vector<absl::flat_hash_map<symbol, int>> coveredAttributes(this->numberOfAttributes);//coveredAttributes存储节点属性中某个符号的计数
-			
-			// // 更新节点id为node的属性符号计数
-			// auto updateCoveredSymbols = [&](unsigned int node)
-			// {
-			// 	// update the of covered symbols
-			// 	auto &attributes = this->userAttributes[node];
-			// 	auto itSymbol = attributes.begin();
-			// 	for (unsigned int i = 0; itSymbol != attributes.end(); ++i, ++itSymbol)
-			// 		coveredAttributes[i][*itSymbol] += 1;
-			// };
-
-			// auto computeMarginalDiversity = [&](unsigned int node)
-			// {//计算结点id为node的边际增益并返回
-			// 	double marginalGain = 0;
-			// 	auto &attributes = this->userAttributes[node];
-			// 	auto itSymbols = attributes.begin();
-			// 	for (unsigned int i = 0; itSymbols != attributes.end(); ++i, ++itSymbols)
-			// 		try
-			// 		{
-			// 			int alreadyPresent = coveredAttributes[i].at(*itSymbols);
-			// 			marginalGain += std::pow(alreadyPresent + 1, -lam);
-			// 		}
-			// 		catch (std::exception &e)
-			// 		{
-			// 			marginalGain += 1;
-			// 		}
-			// 	return marginalGain;
-			// };
-
 			// compute the maximum value for the marginal gain
 			// wrt to the capital score of a node and its diversity
 			//-- the maximum marginal gain is simply the greatest score as a singleton
@@ -84,7 +50,7 @@ namespace Aditum
 
 			// initialize the score vector
 			auto q = this->getInitialScoreVector();
-			this->selectionLoop(q, maxCapital, maxConformity);//通过结合资本分数和多样性分数，从候选节点中选择一组种子节点。
+			this->selectionLoop(q, maxCapital, maxConformity);//通过结合资本分数和一致性分数，从候选节点中选择一组种子节点。
 		}
 		// void buildSeedSetWithDiversity()
 		// {

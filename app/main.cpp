@@ -131,13 +131,14 @@ template <template <typename> class Algo,
 		  typename SetGenerator,
 		  typename AlgoBuilder,
 		  typename... Args>
-std::set<Aditum::node> run(Aditum::AditumGraph &g,
+std::tuple<std::set<Aditum::node>, double, double> run(Aditum::AditumGraph &g,
 						   int k,
 						   double alpha,
 						   double epsilon,
 						   double accuracy,
 						   double targetThreshold,
 						   std::vector<std::vector<std::variant<int, std::string>>> userAttributes,
+						   int flag,
 						   Args &&...args)
 {
 	AlgoBuilder algoBuilder;
@@ -156,7 +157,19 @@ std::set<Aditum::node> run(Aditum::AditumGraph &g,
 	auto algo = algoBuilder.template build<SetGenerator, Algo<SetGenerator>>();
 	// run the seed selection process
 	algo->run();
-	return algo->getSeeds();
+	auto seeds = algo->getSeeds();
+	//计算RIS下种子集合的资本分数
+    auto capitalRIS=algo->getSeedsCapital(targetThreshold);
+	//计算MC下种子集合的资本分数
+	double capitalMC=0.0;
+	if(flag==1){
+		capitalMC=algo-> ICMonteCarloEstimationOfCapital(targetThreshold, seeds, 10000);
+	}else{
+		capitalMC=algo-> LTMonteCarloEstimationOfCapital(targetThreshold, seeds, 10000);
+	}
+	
+	return std::make_tuple(seeds, capitalRIS, capitalMC);
+
 }
 
 // you must provide a tempalte specialization for every
@@ -268,61 +281,44 @@ int main(int argc, char const *argv[])
 		std::vector<std::vector<std::variant<int, std::string>>> userAttributes{reader.read(attributes)};
 
 		std::set<Aditum::node> seeds;
+		std::tuple<std::set<Aditum::node>, double, double> result;
 		// this is ugly -- I know!
 		switch (aditumAlgo)
 		{
 		case algorithm::code::wise: // Attribute Wise Algorithm
 			std::cout << "running wise" << std::endl;
 			if (diffusionModel == "ic")
-				seeds = run<Aditum::AttributeWise, Aditum::ICRandomRRSetGenerator,
+				result = run<Aditum::AttributeWise, Aditum::ICRandomRRSetGenerator,
 							Aditum::AttributeWiseBuilder, double>(g, k, alpha, epsilon, accuracy,
 																  targetThreshold,
 																  userAttributes,
+																  1,
 																  double{vm["lambda"].as<double>()});
 			else
-				seeds = run<Aditum::AttributeWise, Aditum::LTRandomRRSetGenerator,
+				result = run<Aditum::AttributeWise, Aditum::LTRandomRRSetGenerator,
 							Aditum::AttributeWiseBuilder, double>(g, k, alpha, epsilon, accuracy,
 																  targetThreshold,
 																  userAttributes,
+																  0,
 																  double{vm["lambda"].as<double>()});
 			break;
 
-			// case algorithm::code::clas: // Class Based Algorithm
-			// {
-			// 	std::string rewardsFile = vm["rewards"].as<std::string>();
-			// 	std::vector<double> userRewards;
-			// 	if (rewardsFile.empty())
-			// 		userRewards.assign(g.graph().upperNodeIdBound(), 1);
-
-			// 	if (diffusionModel == "ic")
-			// 		seeds = run<Aditum::ClassBased, Aditum::ICRandomRRSetGenerator,
-			// 					Aditum::ClassBasedBuilder, std::vector<double> &>(g, k, alpha, epsilon, accuracy,
-			// 																	  targetThreshold, userAttributes, std::ref(userRewards));
-			// 	else
-			// 		seeds = run<Aditum::ClassBased, Aditum::LTRandomRRSetGenerator,
-			// 					Aditum::ClassBasedBuilder, std::vector<double> &>(g, k, alpha, epsilon, accuracy,
-			// 																	  targetThreshold, userAttributes, std::ref(userRewards));
-			// 	break;
-			// }
-
-			// case algorithm::code::entropy: // Entropy Based Algorithm
-			// 	if (diffusionModel == "ic")
-			// 		seeds = run<Aditum::EntropyBased, Aditum::ICRandomRRSetGenerator,
-			// 					Aditum::EntropyBasedBuilder>(g, k, alpha, epsilon, accuracy, targetThreshold, userAttributes);
-			// 	else
-			// 		seeds = run<Aditum::EntropyBased, Aditum::LTRandomRRSetGenerator,
-			// 					Aditum::EntropyBasedBuilder>(g, k, alpha, epsilon, accuracy, targetThreshold, userAttributes);
-			// 	break;
-
-			// case algorithm::code::hamming:
-			// 	throw std::runtime_error("not implemented yet");
+			
 		}
 
 		// store the seeds file into the file provided as input
+		seeds=std::get<0>(result);
 		std::ofstream f;
 		f.open(outputFile);
+		f << "seeds" << "\n";
 		for (auto x : seeds)
 			f << x << "\n";
+
+		//种子的结点分数
+		f << "CapitalRIS:";
+		f << std::get<1>(result) << "\n";
+		f << "CapitalMC:";
+    	f << std::get<2>(result);
 		f.close();
 	}
 	catch (std::exception &e)
