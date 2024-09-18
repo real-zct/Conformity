@@ -131,7 +131,7 @@ template <template <typename> class Algo,
 		  typename SetGenerator,
 		  typename AlgoBuilder,
 		  typename... Args>
-std::tuple<std::set<Aditum::node>, double, double> run(Aditum::AditumGraph &g,
+std::tuple<std::set<Aditum::node>, double,double,double, double> run(Aditum::AditumGraph &g,
 						   int k,
 						   double alpha,
 						   double epsilon,
@@ -159,7 +159,9 @@ std::tuple<std::set<Aditum::node>, double, double> run(Aditum::AditumGraph &g,
 	algo->run();
 	auto seeds = algo->getSeeds();
 	//计算RIS下种子集合的资本分数
-    auto capitalRIS=algo->getSeedsCapital(targetThreshold);
+    auto capitalRIS=algo->getSeedsCapital_rootCapitalCovProb(targetThreshold);
+	auto capitalRIS1=algo->getSeedsCapital_rrsetNumCovProb(targetThreshold);
+	auto capitalRIS2=algo->getSeedsCapital_rrsetCovRootCapitalCum();
 	//计算MC下种子集合的资本分数
 	double capitalMC=0.0;
 	if(flag==1){
@@ -168,7 +170,7 @@ std::tuple<std::set<Aditum::node>, double, double> run(Aditum::AditumGraph &g,
 		capitalMC=algo-> LTMonteCarloEstimationOfCapital(targetThreshold, seeds, 10000);
 	}
 	
-	return std::make_tuple(seeds, capitalRIS, capitalMC);
+	return std::make_tuple(seeds, capitalRIS,capitalRIS1,capitalRIS2, capitalMC);
 
 }
 
@@ -281,7 +283,7 @@ int main(int argc, char const *argv[])
 		std::vector<std::vector<std::variant<int, std::string>>> userAttributes{reader.read(attributes)};
 
 		std::set<Aditum::node> seeds;
-		std::tuple<std::set<Aditum::node>, double, double> result;
+		std::tuple<std::set<Aditum::node>, double, double,double,double> result;
 		// this is ugly -- I know!
 		switch (aditumAlgo)
 		{
@@ -315,10 +317,14 @@ int main(int argc, char const *argv[])
 			f << x << "\n";
 
 		//种子的结点分数
-		f << "CapitalRIS:";
+		f << "CapitalRIS_rootCapitalCovProb:";
 		f << std::get<1>(result) << "\n";
+		f << "CapitalRIS_rrsetNumCovProb:";
+		f << std::get<2>(result) << "\n";
+		f << "CapitalRIS_rrsetCovRootCapitalCum:";
+		f << std::get<3>(result) << "\n";
 		f << "CapitalMC:";
-    	f << std::get<2>(result);
+    	f << std::get<4>(result);
 		f.close();
 	}
 	catch (std::exception &e)

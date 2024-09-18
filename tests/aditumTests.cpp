@@ -39,8 +39,8 @@ TEST_CASE("Attr Wise", "[.]")
     algoBuilder.setGraph(g)
         .setAlpha(1)
         .setEpsilon(1)
-        .setK(3)
-        .setTargetThreshold(0.1)
+        .setK(2)
+        .setTargetThreshold(0)
         .setAttributes(data);//alpha为资本值系数
     auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator,
                                   Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>();
@@ -51,10 +51,14 @@ TEST_CASE("Attr Wise", "[.]")
         std::cout << x << "\n";
     
     //输出RIS下种子集合的资本分数
-    auto capitalRIS=algo->getSeedsCapital(0.1);
+    auto capitalRIS=algo->getSeedsCapital_rootCapitalCovProb(0);
+    std::cout << capitalRIS << "\n";
+    capitalRIS=algo->getSeedsCapital_rrsetNumCovProb(0);
+    std::cout << capitalRIS << "\n";
+    capitalRIS=algo->getSeedsCapital_rrsetCovRootCapitalCum();
     std::cout << capitalRIS << "\n";
     //测试种子集合的资本分数
-    auto capitalMC=algo-> LTMonteCarloEstimationOfCapital(0.1, seeds, 10000);
+    auto capitalMC=algo-> ICMonteCarloEstimationOfCapital(0, seeds, 10000);
     std::cout << capitalMC;
 
 }

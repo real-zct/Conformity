@@ -263,33 +263,124 @@ namespace Aditum
 				throw std::runtime_error("You must call run() first!");
 			return seedSet;
 		}
-		double getSeedsCapital(double targetThreshold){
-			//记录种子集合的资本分数
-			//double cumulateCapital=0.0;
-			std::set<node> seeds=this->getSeeds();
+		double getSeedsCapital_rootCapitalCovProb(double targetThreshold)
+		{
+			print_rrsets_with_roots(rrsets,setRoot);
+			// 记录种子集合的资本分数
+			// double cumulateCapital=0.0;
+			std::set<node> seeds = this->getSeeds();
 			std::vector<int> rrsetsVisited(this->rrsets.size(), 0);
-			//std::vector<int> targetNodeVisited(aGraph.graph().upperNodeIdBound(),0);
-			double rrsetCovNum=0.0;
-			for(auto seed:seeds){
+			// std::vector<int> targetNodeVisited(aGraph.graph().upperNodeIdBound(),0);
+			double rootCapitalCov = 0.0;
+			// double rrsetCovNum=0.0;
+			for (auto seed : seeds)
+			{
 				for (auto setId : nodeSetIndexes[seed])
-					{ // setId：item所属RR集id的集合
-						if (rrsetsVisited[setId] == 0)
-						{
-							rrsetCovNum+=1;
-							rrsetsVisited[setId] = 1;
-						}
+				{ // setId：item所属RR集id的集合
+					if (rrsetsVisited[setId] == 0)
+					{
+						// rrsetCovNum+=1;
+						rootCapitalCov += aGraph.score(setRoot[setId]);
+						rrsetsVisited[setId] = 1;
 					}
-			}
-			double capitalTotal=0.0;
-			for(auto i=0;i<aGraph.graph().upperNodeIdBound();i++){
-				auto item=aGraph.score(i);
-				if(item>targetThreshold){
-					capitalTotal+=item;
 				}
 			}
-			return capitalTotal*rrsetCovNum/this->rrsets.size();
+			double rootCapitalTotal = 0.0;
+			for (auto i = 0; i < this->rrsets.size(); i++)
+			{
+				rootCapitalTotal += aGraph.score(setRoot[i]);
+			}
+			double capitalTotal = 0.0;
+			for (auto i = 0; i < aGraph.graph().upperNodeIdBound(); i++)
+			{
+				auto item = aGraph.score(i);
+				if (item >= targetThreshold)
+				{
+					capitalTotal += item;
+				}
+			}
+			return capitalTotal * rootCapitalCov / rootCapitalTotal;
 		}
+		double getSeedsCapital_rrsetNumCovProb(double targetThreshold)
+		{
+			//print_rrsets_with_roots(rrsets,setRoot);
+			// 记录种子集合的资本分数
+			// double cumulateCapital=0.0;
+			std::set<node> seeds = this->getSeeds();
+			std::vector<int> rrsetsVisited(this->rrsets.size(), 0);
+			// std::vector<int> targetNodeVisited(aGraph.graph().upperNodeIdBound(),0);
+			double rrsetCovNum=0.0;
+			for (auto seed : seeds)
+			{
+				for (auto setId : nodeSetIndexes[seed])
+				{ // setId：item所属RR集id的集合
+					if (rrsetsVisited[setId] == 0)
+					{
+						rrsetCovNum+=1;
+						rrsetsVisited[setId] = 1;
+					}
+				}
+			}
+			double capitalTotal = 0.0;
+			for (auto i = 0; i < aGraph.graph().upperNodeIdBound(); i++)
+			{
+				auto item = aGraph.score(i);
+				if (item >= targetThreshold)
+				{
+					capitalTotal += item;
+				}
+			}
+			return capitalTotal * rrsetCovNum / rrsets.size();
+		}
+		double getSeedsCapital_rrsetCovRootCapitalCum()
+		{
+			//print_rrsets_with_roots(rrsets,setRoot);
+			// 记录种子集合的资本分数
+			double cumulateCapital=0.0;
+			std::set<node> seeds = this->getSeeds();
+			std::vector<int> rrsetsVisited(this->rrsets.size(), 0);
+			std::vector<int> targetNodeVisited(aGraph.graph().upperNodeIdBound(),0);
+			
+			for (auto seed : seeds)
+			{
+				for (auto setId : nodeSetIndexes[seed])
+				{ // setId：item所属RR集id的集合
+					if (rrsetsVisited[setId] == 0)
+					{
+						auto rootId=setRoot[setId];
+						if(targetNodeVisited[rootId]==0){
+							cumulateCapital+=aGraph.score(rootId);
+							targetNodeVisited[rootId]=1;
+						}
+						rrsetsVisited[setId] = 1;
+					}
+				}
+			}
+			return cumulateCapital;
+		}
+		void print_rrsets_with_roots(const std::vector<absl::flat_hash_set<node>> &rrsets, const std::vector<double> &setRoot)
+		{
+			if (rrsets.size() != setRoot.size())
+			{
+				std::cerr << "Error: rrsets and setRoot must be of the same size." << std::endl;
+				return;
+			}
 
+			for (size_t i = 0; i < rrsets.size(); ++i)
+			{
+				std::cout << "Set " << i << " (Root: " << setRoot[i] << "): {";
+				const auto &set = rrsets[i];
+				for (auto it = set.begin(); it != set.end(); ++it)
+				{
+					if (it != set.begin())
+					{
+						std::cout << ", ";
+					}
+					std::cout << *it;
+				}
+				std::cout << "}" << std::endl;
+			}
+		}
 		/**
 		 * @brief      Build the seed set accounting for the diversity factor
 		 *
@@ -322,7 +413,8 @@ namespace Aditum
 
 			auto reset = [&](const std::set<node> &S)
 			{
-				aGraph.graph().forNodes([&](node v){
+				aGraph.graph().forNodes([&](node v)
+										{
 					if (S.find(v) == S.end()) // 只对不在集合S中的节点进行操作。
 					{						  // 如果未找到该元素，S.find(v)结果会指向 S.end()
 						isActive[v] = false;
@@ -332,8 +424,7 @@ namespace Aditum
                 		isActive[v] = true;
                 		receivedInf[v] = 1.0; // 确保种子节点一开始就是激活的
                 		vThreshold[v] = 0.0; // 种子节点不需要阈值
-            		}
-				});
+            		} });
 			};
 			for (int j = 0; j < IMC; ++j)
 			{
@@ -369,23 +460,24 @@ namespace Aditum
 		}
 		double ICMonteCarloEstimationOfCapital(double targetThreshold, const std::set<node> &S, int IMC)
 		{
-			double curr_C = 0.0;					 // 记录当前累积激活的概率分数
+			double total_C = 0.0;					 // 记录当前累积激活的概率分数
 			std::unordered_map<node, bool> isActive; // 标记是否是激活状态
 			std::mt19937 gen(std::random_device{}());
 			std::uniform_real_distribution<> dis(0.0, 1.0);
 			auto reset = [&](const std::set<node> &S)
 			{
-				aGraph.graph().forNodes([&](node v){
+				aGraph.graph().forNodes([&](node v)
+										{
             		if (S.find(v) == S.end()) {// 如果未找到该元素，S.find(v)结果会指向 S.end().只对不在集合S中的节点进行操作。
                 		isActive[v] = false;
             		}else{
 						isActive[v] = true; // 确保种子节点是激活的
-					}
-				});
+					} });
 			};
 
 			for (int j = 0; j < IMC; ++j)
 			{
+				double cur_C=0.0;
 				reset(S);
 				std::queue<node> temp;
 				for (node u : S)
@@ -398,23 +490,23 @@ namespace Aditum
 				{
 					node u = temp.front();
 					temp.pop();
-
 					aGraph.graph().forNeighborsOf(u, [&](node v)
 												  {
                 		if (!isActive[v]) {
                     		double prob = aGraph.graph().weight(u, v);
-                    		if (dis(gen) < prob) {
+                    		if (dis(gen) <= prob) {
                         		isActive[v] = true;
                         		temp.push(v);
                         		if (aGraph.score(v) >= targetThreshold) {
-                            		curr_C += aGraph.score(v);
+                            		cur_C += aGraph.score(v);
                         		}
                     		}
                 		} });
 				}
+				total_C+=cur_C;
 			}
 
-			return curr_C / IMC;
+			return total_C / IMC;
 		}
 
 	private:
@@ -590,7 +682,7 @@ namespace Aditum
 							rrsetsVisited[setId] = 1;
 						}
 					}
-					seedSet.emplace(item.node); // 将item加入到种子集合中去	
+					seedSet.emplace(item.node); // 将item加入到种子集合中去
 					q.pop_back();
 				}
 				else
