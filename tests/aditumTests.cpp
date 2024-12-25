@@ -47,19 +47,21 @@ TEST_CASE("Attr Wise", "[.]")
     //选择种子节点并返回结果
     algo->run();
     auto seeds = algo->getSeeds();
+    std::cout << "种子结点：";
     for (auto x : seeds)
         std::cout << x << "\n";
     
     //输出RIS下种子集合的资本分数
-    auto capitalRIS=algo->getSeedsCapital_rootCapitalCovProb(0);
-    std::cout << capitalRIS << "\n";
-    capitalRIS=algo->getSeedsCapital_rrsetNumCovProb(0);
-    std::cout << capitalRIS << "\n";
-    capitalRIS=algo->getSeedsCapital_rrsetCovRootCapitalCum();
-    std::cout << capitalRIS << "\n";
+    // auto capitalRIS=algo->getSeedsCapital_rootCapitalCovProb(0);
+    // std::cout << capitalRIS << "\n";
+    // capitalRIS=algo->getSeedsCapital_rrsetNumCovProb(0);
+    // std::cout << capitalRIS << "\n";
+    // capitalRIS=algo->getSeedsCapital_rrsetCovRootCapitalCum();
+    // std::cout << capitalRIS << "\n";
 
     //测试种子集合的资本分数
     auto capitalMC=algo-> ICMonteCarloEstimationOfCapital(0, seeds, 10000);
+    std::cout << "一致性算法蒙特卡洛影响力值：";
     std::cout << capitalMC<< "\n";
 
     //基线算法
@@ -80,6 +82,7 @@ TEST_CASE("Attr Wise", "[.]")
 
     //测试种子集合的资本分数
     auto baseCapitalMC=algoBase-> ICMonteCarloEstimationOfCapital(0, baseSeeds, 10000);
+    std::cout << "基线算法蒙特卡洛影响力值：";
     std::cout << baseCapitalMC<< "\n";
 
 }

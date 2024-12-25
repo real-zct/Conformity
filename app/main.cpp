@@ -138,7 +138,7 @@ std::tuple<std::set<Aditum::node>, double,double,double, double> run(Aditum::Adi
 						   double accuracy,
 						   double targetThreshold,
 						   std::vector<std::vector<std::variant<int, std::string>>> userAttributes,
-						   int flag,
+						   int flag,//1为ic模型，0为lt模型
 						   Args &&...args)
 {
 	AlgoBuilder algoBuilder;
@@ -335,11 +335,11 @@ int main(int argc, char const *argv[])
 
 		//种子的结点分数
 		f << "CapitalRIS_rootCapitalCovProb:";
-		f << std::get<1>(result) << "\n";
-		f << "CapitalRIS_rrsetNumCovProb:";
-		f << std::get<2>(result) << "\n";
-		f << "CapitalRIS_rrsetCovRootCapitalCum:";
-		f << std::get<3>(result) << "\n";
+//		f << std::get<1>(result) << "\n";
+//		f << "CapitalRIS_rrsetNumCovProb:";
+//		f << std::get<2>(result) << "\n";
+//		f << "CapitalRIS_rrsetCovRootCapitalCum:";
+//		f << std::get<3>(result) << "\n";
 		f << "CapitalMC:";
     	f << std::get<4>(result) << "\n";
 		//f.close();
