@@ -31,14 +31,14 @@
             "program": "/home/zct/laboratory/project/aditum/build/app/app",
             "args": [
                 "-a","wise",
-                "--graph","/home/zct/laboratory/project/data/lastfm/graph_final.csv",
-                "--capital","/home/zct/laboratory/project/data/lastfm/capital_final.csv",
+                "--graph","/home/zct/laboratory/project/data/pokec/pokecGraph_with_similarity2.txt",
+                "--capital","/home/zct/laboratory/project/data/pokec/capital_final.csv",
                 "--target-threshold","0.75",
-                "--alpha","0.75",
-                "--output","/home/zct/laboratory/project/data/lastfm/seed.csv",
-                "--diffusion-model","ic",
+                "--alpha","0.5",
+                "--output","/home/zct/laboratory/project/data/pokec/seed.csv",
+                "--diffusion-model","lt",
                 "--k","10",
-                "--attributes","/home/zct/laboratory/project/data/lastfm/attributes.csv"
+                "--attributes","/home/zct/laboratory/project/data/pokec/modified_pokec-profiles10.txt"
             ],
             "stopAtEntry": false,
             "cwd": "/home/zct/laboratory/project/aditum",

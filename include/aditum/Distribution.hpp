@@ -35,7 +35,7 @@ namespace Aditum
             SampleObject &operator=(SampleObject &) = default;
         };
 
-        /*!< vector containing the pointwise（单个节点的） probabilities */
+        /*!< vector containing the pointwise（单个节点的）资本分数的值  */
         std::vector<SampleObject> discreteProbs;
 
         /*!< vector containing the cumulative distribution，这里的；累积概率主要是资本分数累积概率 */
@@ -66,6 +66,43 @@ namespace Aditum
          *  The i-th object of the array will be mapped to a
          *  score object with id i and prob discreteProbs[i] if
          *  the probability is greater than 0, otherwise it will be discarded
+         *  @param discreteProb
+         *  
+         */
+        Distribution(int isBaseAlgo,std::vector<double> discreteProbs);
+        /**
+         *  @brief Constructor
+         *
+         *  It takes the pointwise discrete probability
+         *  ditribution.
+         *
+         *  The i-th object of the array will be mapped to a
+         *  score object with id i and prob discreteProbs[i] if
+         *  the probability is greater than 0, otherwise it will be discarded
+         *
+         *  @param discreteProb
+         *  
+         */
+        Distribution(std::vector<double> discreteProbs);
+        /**
+         *  @brief Constructor
+         *
+         *  It takes the pointwise discrete probability
+         *  distribution plus the seed for the random number generator.
+         *
+         *  @param discreteProb
+         *  @param seed
+         */
+        Distribution(std::vector<double> discreteProbs,unsigned int seed);
+        /**
+         *  @brief Constructor
+         *
+         *  It takes the pointwise discrete probability
+         *  ditribution.
+         *
+         *  The i-th object of the array will be mapped to a
+         *  score object with id i and prob discreteProbs[i] if
+         *  the probability is greater than 0, otherwise it will be discarded
          *
          *  @param discreteProb
          *  @param cAndDScore
@@ -82,16 +119,6 @@ namespace Aditum
          *  @param seed
          */
         Distribution(std::vector<double> discreteProbs, std::vector<double> cAndDScore,unsigned int seed);
-
-        /**
-         *  @brief Sample from the distribution
-         *
-         *  It draws samples from the cumulative distribution.
-         *
-         *
-         *  @param size, number of sampels to be drawn
-         *  @return points samples from the distribution
-         */
         // Distribution(std::vector<double> cAndDScore,int flag);
         // /**
         //  *  @brief Constructor
@@ -111,6 +138,16 @@ namespace Aditum
         //  *
         //  *  @return 得到结点的资本分数与节点出度的乘积的数组
         //  */
+        /**
+         *  @brief Sample from the distribution
+         *
+         *  It draws samples from the cumulative distribution.
+         *
+         *
+         *  @param size, number of sampels to be drawn
+         *  @return points samples from the distribution
+         */
+        
         std::vector<uint32_t> sample(unsigned int size);
 
         /**

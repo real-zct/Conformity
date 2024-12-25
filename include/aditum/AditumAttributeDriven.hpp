@@ -103,7 +103,7 @@ namespace Aditum
 			std::vector<int> rrsetsVisited(this->rrsets.size(),0);
 			while (this->seedSet.size() < this->k)
 			{
-				std::pop_heap(q.begin(), q.end());
+				std::pop_heap(q.begin(), q.end());//std::pop_heap 是一个堆操作，用于调整堆结构，使得堆顶元素（q.front()）被移动到容器的末尾（q.back()）。调用 std::pop_heap(q.begin(), q.end()); 后：容器 q 的最后一个元素是之前的堆顶（也就是优先级最高的元素），堆中剩下的元素仍然保持堆的性质。
 				auto &item = q.back();
 
 				if (item.iteration == this->seedSet.size())
@@ -118,7 +118,7 @@ namespace Aditum
 						}
 					}
 					this->seedSet.emplace(item.node);
-					q.pop_back();
+           			q.pop_back();
 					//这里被计算过的RR集合应该不能被二次计算，应当从所有RR集中去除。
 					//这里将包含当前新种子集合的RR集去除掉，
 				}

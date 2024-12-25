@@ -108,9 +108,11 @@ namespace Aditum
 	{
 	public:
 		template <typename SetGenerator, typename DiversityAwareAlgo>
-		AditumBase<SetGenerator, DiversityAwareAlgo> *build()
-		{
-			Distribution nodeDistribution = computeDistribution();
+		AditumBase<SetGenerator, DiversityAwareAlgo> *build(int flag)
+		{	
+			// 延迟定义 nodeDistribution，0表示基线算法
+    		Distribution nodeDistribution = (flag == 0) ? computeDistribution() : computeDistribution(alpha);
+			
 			// Distribution nodeCAndDDistribution = computeCAndDDistribution();
 			return new AttributeWise<SetGenerator>(*aGraph,
 												   nodeDistribution,

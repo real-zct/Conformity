@@ -180,7 +180,7 @@ namespace Aditum
 			//  reset all data structures
 			reset();
 
-			auto roots = nodeDistribution.sample(theta); // 根据结点资本分数与出度乘积来进行源节点采样,选择theta个源节点
+			auto roots = nodeDistribution.sample(theta); // 根据结点资本分数进行源节点采样,选择theta个源节点
 			// expand the vector for storing the rrsets
 			int offset = 0;
 			rrsets.resize(roots.size());
@@ -208,7 +208,7 @@ namespace Aditum
 			// 生成RR集然后计算最终的种子集
 			//  reset all data structures
 			reset();
-
+			//auto roots = nodeDistribution.sample(theta); // 根据结点资本分数进行源节点采样,选择theta个源节点
 			auto roots = nodeDistribution.sample(theta, 1); // 根据结点资本分数与出度乘积来进行源节点采样,选择theta个源节点
 			// expand the vector for storing the rrsets
 			int offset = 0;
@@ -261,11 +261,11 @@ namespace Aditum
 		{
 			if (!hasRun)
 				throw std::runtime_error("You must call run() first!");
-			return seedSet;
+			return this->seedSet;
 		}
 		double getSeedsCapital_rootCapitalCovProb(double targetThreshold)
 		{
-			print_rrsets_with_roots(rrsets,setRoot);
+			//print_rrsets_with_roots(rrsets,setRoot);
 			// 记录种子集合的资本分数
 			// double cumulateCapital=0.0;
 			std::set<node> seeds = this->getSeeds();

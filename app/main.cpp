@@ -154,7 +154,7 @@ std::tuple<std::set<Aditum::node>, double,double,double, double> run(Aditum::Adi
 	setRemaining(algoBuilder, std::forward<Args>(args)...);
 
 	// crate the instance of the algorithm
-	auto algo = algoBuilder.template build<SetGenerator, Algo<SetGenerator>>();
+	auto algo = algoBuilder.template build<SetGenerator, Algo<SetGenerator>>(1);
 	// run the seed selection process
 	algo->run();
 	auto seeds = algo->getSeeds();
@@ -283,26 +283,43 @@ int main(int argc, char const *argv[])
 		std::vector<std::vector<std::variant<int, std::string>>> userAttributes{reader.read(attributes)};
 
 		std::set<Aditum::node> seeds;
+		std::set<Aditum::node> baseSeeds;
 		std::tuple<std::set<Aditum::node>, double, double,double,double> result;
+		std::tuple<std::set<Aditum::node>, double, double,double,double> baseResult;
 		// this is ugly -- I know!
 		switch (aditumAlgo)
 		{
 		case algorithm::code::wise: // Attribute Wise Algorithm
 			std::cout << "running wise" << std::endl;
-			if (diffusionModel == "ic")
+			if (diffusionModel == "ic"){
 				result = run<Aditum::AttributeWise, Aditum::ICRandomRRSetGenerator,
 							Aditum::AttributeWiseBuilder, double>(g, k, alpha, epsilon, accuracy,
 																  targetThreshold,
 																  userAttributes,
 																  1,
 																  double{vm["lambda"].as<double>()});
-			else
+				baseResult = run<Aditum::AttributeWise, Aditum::ICRandomRRSetGenerator,
+							Aditum::AttributeWiseBuilder, double>(g, k, 1, epsilon, accuracy,
+																  targetThreshold,
+																  userAttributes,
+																  1,
+																  double{vm["lambda"].as<double>()});
+			}
+			else{
 				result = run<Aditum::AttributeWise, Aditum::LTRandomRRSetGenerator,
 							Aditum::AttributeWiseBuilder, double>(g, k, alpha, epsilon, accuracy,
 																  targetThreshold,
 																  userAttributes,
 																  0,
 																  double{vm["lambda"].as<double>()});
+				baseResult = run<Aditum::AttributeWise, Aditum::LTRandomRRSetGenerator,
+							Aditum::AttributeWiseBuilder, double>(g, k, 1, epsilon, accuracy,
+																  targetThreshold,
+																  userAttributes,
+																  0,
+																  double{vm["lambda"].as<double>()});											  
+			}
+				
 			break;
 
 			
@@ -324,7 +341,19 @@ int main(int argc, char const *argv[])
 		f << "CapitalRIS_rrsetCovRootCapitalCum:";
 		f << std::get<3>(result) << "\n";
 		f << "CapitalMC:";
-    	f << std::get<4>(result);
+    	f << std::get<4>(result) << "\n";
+		//f.close();
+
+		// store the seeds file into the file provided as input
+		baseSeeds=std::get<0>(baseResult);
+		//std::ofstream f;
+		//f.open(outputFile);
+		f << "baseSeeds" << "\n";
+		for (auto x : baseSeeds)
+			f << x << "\n";
+
+		f << "baseAlgoCapitalMC:";
+    	f << std::get<4>(baseResult) << "\n";
 		f.close();
 	}
 	catch (std::exception &e)

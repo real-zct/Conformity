@@ -37,13 +37,13 @@ TEST_CASE("Attr Wise", "[.]")
     //构造Aditum，设置所需参数以及扩散模型
     Aditum::AditumBuilder<Aditum::AttributeWiseBuilder> algoBuilder;
     algoBuilder.setGraph(g)
-        .setAlpha(1)
+        .setAlpha(0.5)
         .setEpsilon(1)
         .setK(2)
         .setTargetThreshold(0)
         .setAttributes(data);//alpha为资本值系数
     auto algo = algoBuilder.build<Aditum::LTRandomRRSetGenerator,
-                                  Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>();
+                                  Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>(1);//1表示一致性算法
     //选择种子节点并返回结果
     algo->run();
     auto seeds = algo->getSeeds();
@@ -57,8 +57,29 @@ TEST_CASE("Attr Wise", "[.]")
     std::cout << capitalRIS << "\n";
     capitalRIS=algo->getSeedsCapital_rrsetCovRootCapitalCum();
     std::cout << capitalRIS << "\n";
+
     //测试种子集合的资本分数
     auto capitalMC=algo-> ICMonteCarloEstimationOfCapital(0, seeds, 10000);
-    std::cout << capitalMC;
+    std::cout << capitalMC<< "\n";
+
+    //基线算法
+    Aditum::AditumBuilder<Aditum::AttributeWiseBuilder> algoBuilderBase;
+    algoBuilderBase.setGraph(g)
+        .setAlpha(1)
+        .setEpsilon(1)
+        .setK(2)
+        .setTargetThreshold(0)
+        .setAttributes(data);//alpha为资本值系数,基线算法的alpha设置一定是1，采样源节点走无一致性的代码。
+    auto algoBase = algoBuilderBase.build<Aditum::LTRandomRRSetGenerator,
+                                  Aditum::AttributeWise<Aditum::LTRandomRRSetGenerator>>(0);//0表示基线算法
+    //选择种子节点并返回结果
+    algoBase->run();
+    auto baseSeeds = algoBase->getSeeds();
+    for (auto y : baseSeeds)
+        std::cout << y << "\n";
+
+    //测试种子集合的资本分数
+    auto baseCapitalMC=algoBase-> ICMonteCarloEstimationOfCapital(0, baseSeeds, 10000);
+    std::cout << baseCapitalMC<< "\n";
 
 }

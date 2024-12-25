@@ -7,7 +7,46 @@ namespace Aditum
 {
 
 	Distribution::SampleObject::SampleObject(uint32_t i, double p) : id{i}, probs{p} {}
-
+	Distribution::Distribution(int isBaseAlgo,std::vector<double> discreteP)
+	{
+		if(isBaseAlgo==0){
+			return;
+		}
+		auto seed=Utility::now();
+		sfmt_init_gen_rand(&gen, seed);// init the random number generator
+		double cumProb = 0;
+		for (uint32_t i = 0; i < discreteP.size(); ++i)
+		{
+			if (double prob = discreteP[i];
+				prob > 0)
+			{
+				// create an new entry into the SampleObject vector
+				discreteProbs.emplace_back(i, 1);//将资本分数的概率放在discreteProbs中
+				cumProb += 1;
+				cumulativeProbs.emplace_back(cumProb);//将累计概率存储在cumulativeProbs中
+			}
+		}
+		maxValue = cumProb;
+	}
+	Distribution::Distribution(std::vector<double> discreteP, unsigned int seed)
+	{
+		// init the random number generator
+		sfmt_init_gen_rand(&gen, seed);
+		double cumProb = 0;
+		for (uint32_t i = 0; i < discreteP.size(); ++i)
+		{
+			if (double prob = discreteP[i];
+				prob > 0)
+			{
+				// create an new entry into the SampleObject vector
+				discreteProbs.emplace_back(i, prob);//将资本分数的概率放在discreteProbs中
+				cumProb += prob;
+				cumulativeProbs.emplace_back(cumProb);//将累计概率存储在cumulativeProbs中
+			}
+		}
+		maxValue = cumProb;
+	}
+	Distribution::Distribution(std::vector<double> discreteProbs) : Distribution(discreteProbs,Utility::now()) {}
 	Distribution::Distribution(std::vector<double> discreteP,std::vector<double> cAndDScore, unsigned int seed)
 	{
 		// init the random number generator
