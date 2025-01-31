@@ -67,7 +67,7 @@ namespace Aditum
 				prob > 0)
 			{
 				// create an new entry into the SampleObject vector
-				cAndODiscreteProbs.emplace_back(i, prob);//将节点编号和资本分数出度乘积的概率放在discreteProbs中
+				cAndODiscreteProbs.emplace_back(i, prob);//将节点编号和资本分数入度+1的乘积的值放在discreteProbs中
 				cAndDCumProb += prob;
 				cAndOCumulativeProbs.emplace_back(cAndDCumProb);//将累计概率存储在cumulativeProbs中
 			}

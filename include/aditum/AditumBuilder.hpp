@@ -145,6 +145,7 @@ namespace Aditum
     protected:
         Distribution computeDistribution(double alpha)
         {
+            
             if(alpha<1){
                 // create the distribution
                 std::vector<double> scoreVector(aGraph->scores().size());

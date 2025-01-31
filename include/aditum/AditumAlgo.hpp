@@ -208,6 +208,7 @@ namespace Aditum
 			// 生成RR集然后计算最终的种子集
 			//  reset all data structures
 			reset();
+			//test，设置为选点概率仅和capital有关
 			//auto roots = nodeDistribution.sample(theta); // 根据结点资本分数进行源节点采样,选择theta个源节点
 			auto roots = nodeDistribution.sample(theta, 1); // 根据结点资本分数与出度乘积来进行源节点采样,选择theta个源节点
 			// expand the vector for storing the rrsets
@@ -236,17 +237,12 @@ namespace Aditum
 		}
 		double countSim(unsigned int node, unsigned int root)
 		{
-			if (this->nodeRootSim[node][root] == -1.0)
-			{
-				if (this->nodeRootSim[root][node] != -1.0)
-				{
-					this->nodeRootSim[node][root] = this->nodeRootSim[root][node];
-				}
-				else
-				{
-					this->nodeRootSim[node][root] = static_cast<DiversityAwareAlgo *>(this)->countSim(node, root);
-				}
+			if (this->nodeRootSim[root][node] != -1.0){
+				this->nodeRootSim[node][root] = this->nodeRootSim[root][node];
+			}else{
+				this->nodeRootSim[node][root] = static_cast<DiversityAwareAlgo *>(this)->countSim(node, root);
 			}
+			
 		}
 		/**
 		 * @brief      It returns the final seed set
